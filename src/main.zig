@@ -87,6 +87,10 @@ pub const Road = struct {
     y: f32,
     width: f32,
     height: f32,
+    start_x: f32,
+    start_y: f32,
+    end_x: f32,
+    end_y: f32,
 
     pub fn new(x: f32, y: f32, width: f32, height: f32) Road {
         return Road{
@@ -94,6 +98,10 @@ pub const Road = struct {
             .y = y,
             .width = width,
             .height = height,
+            .start_x = x,
+            .start_y = y + height / 2, // Center of the left edge
+            .end_x = x + width,
+            .end_y = y + height / 2, // Center of the right edge
         };
     }
 
@@ -111,23 +119,23 @@ pub const Road = struct {
 pub const Item = struct {
     x: f32,
     y: f32,
-    itemType: u32,
+    item_type: u32,
 
     // Create a new Item with given position and category
-    pub fn new(x: f32, y: f32, itemType: u32) Item {
+    pub fn new(x: f32, y: f32, item_type: u32) Item {
         return Item{
             .x = x,
             .y = y,
-            .itemType = itemType,
+            .item_type = item_type,
         };
     }
 
     // Draw the Item based on its category
     pub fn draw(self: *const Item) void {
-        if (self.itemType == 0) {
+        if (self.item_type == 0) {
             // Draw a green circle to represent a tree
             rl.drawCircleV(rl.Vector2{ .x = self.x, .y = self.y }, 10, Color.new(0, 128, 0, 255).toRaylibColor());
-        } else if (self.itemType == 1) {
+        } else if (self.item_type == 1) {
             // Draw a brown rectangle to represent a building
             rl.drawRectangleV(rl.Vector2{
                 .x = self.x,
@@ -153,7 +161,11 @@ pub fn main() anyerror!void {
     //--------------------------------------------------------------------------------------
 
     // Initialize road
-    var mainRoad = Road.new(200.0, 100.0, 400.0, 200.0);
+    var mainRoad = Road.new(screenWidth * 0.2, // x: 20% from the left edge
+        0, // y: start from the top of the window
+        screenWidth * 0.6, // width: 60% of the screen width
+        @as(f32, screenHeight) // height: full screen height
+    );
 
     // Initialize car
     var skyCar = Car.new("Sky", Color.new(173, 216, 230, 255), 5.0, 100.0, 100.0, &mainRoad);
@@ -198,7 +210,13 @@ pub fn main() anyerror!void {
             item.draw();
         }
 
-        rl.drawCircleV(rl.Vector2{ .x = skyCar.x, .y = skyCar.y }, 20, skyCar.color.toRaylibColor());
+        // Draw car body
+        rl.drawRectangleV(rl.Vector2{ .x = skyCar.x - 20, .y = skyCar.y - 10 }, rl.Vector2{ .x = 40, .y = 20 }, skyCar.color.toRaylibColor());
+        // Draw car roof
+        rl.drawTriangle(rl.Vector2{ .x = skyCar.x - 15, .y = skyCar.y - 10 }, rl.Vector2{ .x = skyCar.x + 15, .y = skyCar.y - 10 }, rl.Vector2{ .x = skyCar.x, .y = skyCar.y - 20 }, skyCar.color.toRaylibColor());
+        // Draw wheels
+        rl.drawCircleV(rl.Vector2{ .x = skyCar.x - 15, .y = skyCar.y + 10 }, 5, rl.Color.black);
+        rl.drawCircleV(rl.Vector2{ .x = skyCar.x + 15, .y = skyCar.y + 10 }, 5, rl.Color.black);
         rl.drawText(@ptrCast(skyCar.name), 20, 20, 10, rl.Color.black);
 
         //----------------------------------------------------------------------------------
