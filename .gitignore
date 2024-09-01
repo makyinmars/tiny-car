@@ -18,3 +18,6 @@ Thumbs.db
 
 # Dependencies
 deps/
+
+# LLM
+debug.md
