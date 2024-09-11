@@ -121,13 +121,13 @@ pub fn main() anyerror!void {
         // Update game state
         if (!gaveOver) {
             // Handle player input
-            if (rl.isKeyDown(rl.KeyboardKey.key_a) or rl.isKeyDown(rl.KeyboardKey.key_left)) {
+            if (rl.isKeyDown(rl.KeyboardKey.key_h)) {
                 car.position.x -= @as(f32, @floatFromInt(car.speed));
-            } else if (rl.isKeyDown(rl.KeyboardKey.key_d) or rl.isKeyDown(rl.KeyboardKey.key_right)) {
+            } else if (rl.isKeyDown(rl.KeyboardKey.key_l)) {
                 car.position.x += @as(f32, @floatFromInt(car.speed));
-            } else if (rl.isKeyDown(rl.KeyboardKey.key_w) or rl.isKeyDown(rl.KeyboardKey.key_up)) {
+            } else if (rl.isKeyDown(rl.KeyboardKey.key_k)) {
                 car.position.y -= @as(f32, @floatFromInt(car.speed));
-            } else if (rl.isKeyDown(rl.KeyboardKey.key_s) or rl.isKeyDown(rl.KeyboardKey.key_down)) {
+            } else if (rl.isKeyDown(rl.KeyboardKey.key_j)) {
                 car.position.y += @as(f32, @floatFromInt(car.speed));
             }
 
@@ -252,22 +252,27 @@ pub fn main() anyerror!void {
             rl.drawTextureRec(treesTexture, sourceRects[n % 3], treePos, rl.Color.white);
         }
 
-        // Draw score and lives
-        var scoring: [13]u8 = undefined;
-        const scoreText = try std.fmt.bufPrintZ(&scoring, "{d}/100", .{score});
-        rl.drawText(scoreText, SCREEN_WIDTH - 80, 0, 20, rl.Color.white);
-        var livesScoring: [13]u8 = undefined;
-        const livesText = try std.fmt.bufPrintZ(&livesScoring, "{d}/9", .{lives});
-        rl.drawText(livesText, SCREEN_WIDTH - 80, 30, 20, rl.Color.white);
+        rl.drawRectangle(10, 10, 100, 75, rl.Color.sky_blue.fade(0.9));
+        rl.drawRectangleLines(10, 10, 100, 75, rl.Color.sky_blue.fade(0.9));
+
+        rl.drawFPS(710, 10);
+        rl.drawText("Game Stats", 20, 20, 10, rl.Color.black);
+
+        var scoring: [20]u8 = undefined;
+        const scoreText = try std.fmt.bufPrintZ(&scoring, "Score: {d}/100", .{score});
+        rl.drawText(scoreText, 20, 40, 10, rl.Color.dark_gray);
+        var livesScoring: [20]u8 = undefined;
+        const livesText = try std.fmt.bufPrintZ(&livesScoring, "Lives: {d}/9", .{lives});
+        rl.drawText(livesText, 20, 60, 10, rl.Color.dark_gray);
 
         // Draw game over screen
         if (gaveOver) {
             const color = rl.Color{ .r = 0, .g = 0, .b = 0, .a = 180 };
             rl.drawRectangle(@intFromFloat(rmuteScreen.x), @intFromFloat(rmuteScreen.y), @intFromFloat(rmuteScreen.width), @intFromFloat(rmuteScreen.height), color);
             if (gameWon) {
-                rl.drawText("You Won!!", @divFloor(SCREEN_WIDTH, 11), @divFloor(SCREEN_HEIGHT, 3), 90, rl.Color.white);
+                rl.drawText("You Won!!", @divFloor(SCREEN_WIDTH - rl.measureText("You Won!!", 90), 2), @divFloor(SCREEN_HEIGHT, 2) - 45, 90, rl.Color.white);
             } else {
-                rl.drawText("Game Over!!", @divFloor(SCREEN_WIDTH, 11), @divFloor(SCREEN_HEIGHT, 3), 90, rl.Color.white);
+                rl.drawText("Game Over!!", @divFloor(SCREEN_WIDTH - rl.measureText("Game Over!!", 90), 2), @divFloor(SCREEN_HEIGHT, 2) - 45, 90, rl.Color.white);
             }
         }
     }
