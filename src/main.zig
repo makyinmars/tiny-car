@@ -18,6 +18,10 @@ pub fn main() anyerror!void {
     rl.initWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Tiny Car Game");
     defer rl.closeWindow(); // Ensure window is closed when function exits
 
+    // Initialize Audio
+    rl.initAudioDevice();
+    defer rl.closeAudioDevice();
+
     rl.setTargetFPS(60); // Set target frame rate
 
     // Load car texture
@@ -99,6 +103,16 @@ pub fn main() anyerror!void {
         carsSpeed[j] = @as(f32, @floatFromInt(rand.intRangeAtMost(i32, 6, 10)));
     }
 
+    // Load audio
+    const backgroundMusic = rl.loadMusicStream("resources/sound/speeding.mp3");
+    defer rl.unloadMusicStream(backgroundMusic);
+
+    const carBrake = rl.loadSound("resources/sound/brake.mp3");
+    defer rl.unloadSound(carBrake);
+
+    const carCrash = rl.loadSound("resources/sound/car-crash.mp3");
+    defer rl.unloadSound(carCrash);
+
     // Define rectangle covering the entire screen
     const rmuteScreen = rl.Rectangle{
         .x = 0,
@@ -116,6 +130,8 @@ pub fn main() anyerror!void {
     var gameWon: bool = false;
     var vulnerable: bool = true;
 
+    rl.playMusicStream(backgroundMusic);
+
     // Main game loop
     while (!rl.windowShouldClose()) {
         // Update game state
@@ -128,6 +144,7 @@ pub fn main() anyerror!void {
             } else if (rl.isKeyDown(rl.KeyboardKey.key_k)) {
                 car.position.y -= @as(f32, @floatFromInt(car.speed));
             } else if (rl.isKeyDown(rl.KeyboardKey.key_j)) {
+                rl.playSound(carBrake);
                 car.position.y += @as(f32, @floatFromInt(car.speed));
             }
 
@@ -156,6 +173,12 @@ pub fn main() anyerror!void {
                     carsSpeed[k] = @as(f32, @floatFromInt(rand.intRangeAtMost(i32, 6, 10)));
                 }
 
+                // Check if the player's car has passed the other cars
+                if (car.position.y < carPos.y + @as(f32, @floatFromInt(carsTextures.height)) and car.position.y + @as(f32, @floatFromInt(car.texture.height)) > carPos.y + @as(f32, @floatFromInt(carsTextures.height))) {
+                    // Player's car has passed this car
+                    score += 1;
+                }
+
                 // Check for collision between player car and other cars
                 const rec1 = rl.Rectangle{
                     .x = car.position.x,
@@ -175,6 +198,7 @@ pub fn main() anyerror!void {
                     if (vulnerable) {
                         lives -= 1;
                         vulnerable = false;
+                        rl.playSound(carCrash);
                     }
                     car.position.y -= @as(f32, @floatFromInt(car.texture.height)) - 10;
                 }
@@ -214,6 +238,9 @@ pub fn main() anyerror!void {
                 gaveOver = true;
             }
         }
+
+        // Play background music
+        rl.updateMusicStream(backgroundMusic);
 
         // Draw game elements
         rl.beginDrawing();
@@ -259,7 +286,7 @@ pub fn main() anyerror!void {
         rl.drawText("Game Stats", 20, 20, 10, rl.Color.black);
 
         var scoring: [20]u8 = undefined;
-        const scoreText = try std.fmt.bufPrintZ(&scoring, "Score: {d}/100", .{score});
+        const scoreText = try std.fmt.bufPrintZ(&scoring, "Score: {d}/1000", .{score});
         rl.drawText(scoreText, 20, 40, 10, rl.Color.dark_gray);
         var livesScoring: [20]u8 = undefined;
         const livesText = try std.fmt.bufPrintZ(&livesScoring, "Lives: {d}/9", .{lives});

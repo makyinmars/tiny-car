@@ -3,7 +3,7 @@
 # tiny-car
 
 ## TODO
-- [ ] Add sound to the car (WIP)
+- [x] Add sound to the car
 - [ ] Add textures for grass
 - [ ] Add texture for roads
 - [ ] Update asset icons
