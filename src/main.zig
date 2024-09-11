@@ -10,7 +10,7 @@ const Car = struct {
 
 // Define screen dimensions
 const SCREEN_WIDTH = 800;
-const SCREEN_HEIGHT = 450;
+const SCREEN_HEIGHT = 640;
 
 pub fn main() anyerror!void {
 
@@ -254,11 +254,11 @@ pub fn main() anyerror!void {
 
         // Draw score and lives
         var scoring: [13]u8 = undefined;
-        const scoreText = try std.fmt.bufPrintZ(&scoring, "{d}", .{score});
-        rl.drawText(scoreText, SCREEN_WIDTH - 50, 0, 60, rl.Color.white);
+        const scoreText = try std.fmt.bufPrintZ(&scoring, "{d}/100", .{score});
+        rl.drawText(scoreText, SCREEN_WIDTH - 80, 0, 20, rl.Color.white);
         var livesScoring: [13]u8 = undefined;
-        const livesText = try std.fmt.bufPrintZ(&livesScoring, "{d}", .{lives});
-        rl.drawText(livesText, SCREEN_WIDTH - 50, 0, 60, rl.Color.white);
+        const livesText = try std.fmt.bufPrintZ(&livesScoring, "{d}/9", .{lives});
+        rl.drawText(livesText, SCREEN_WIDTH - 80, 30, 20, rl.Color.white);
 
         // Draw game over screen
         if (gaveOver) {
@@ -267,7 +267,7 @@ pub fn main() anyerror!void {
             if (gameWon) {
                 rl.drawText("You Won!!", @divFloor(SCREEN_WIDTH, 11), @divFloor(SCREEN_HEIGHT, 3), 90, rl.Color.white);
             } else {
-                rl.drawText("You Over!!", @divFloor(SCREEN_WIDTH, 11), @divFloor(SCREEN_HEIGHT, 3), 90, rl.Color.white);
+                rl.drawText("Game Over!!", @divFloor(SCREEN_WIDTH, 11), @divFloor(SCREEN_HEIGHT, 3), 90, rl.Color.white);
             }
         }
     }
