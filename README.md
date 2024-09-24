@@ -1,7 +1,5 @@
 # tiny-car
 
-# tiny-car
-
 ## TODO
 - [x] Add sound to the car
 - [ ] Add textures for grass

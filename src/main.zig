@@ -75,9 +75,17 @@ pub fn main() anyerror!void {
         try treesPos.append(pos);
     }
 
-    // // Load cars texture
+    // Load cars texture
     const carsTextures = rl.loadTexture("resources/textures/cars.png");
     defer rl.unloadTexture(carsTextures);
+
+    // Load grass texture
+    const grassTexture = rl.loadTexture("resources/textures/grass.png");
+    defer rl.unloadTexture(grassTexture);
+
+    // Load road texture
+    const roadTexture = rl.loadTexture("resources/textures/road.png");
+    defer rl.unloadTexture(roadTexture);
 
     // Define source rectangles for cars
     var sourcesRectsCars: [6]rl.Rectangle = [_]rl.Rectangle{.{ .width = 16, .height = 24, .x = 0, .y = 0 }} ** 6;
@@ -250,11 +258,18 @@ pub fn main() anyerror!void {
         rl.drawTexture(carTexture, @divFloor(SCREEN_WIDTH, 2) - @divFloor(carTexture.width, 2), @divFloor(SCREEN_HEIGHT, 2) - @divFloor(carTexture.height, 2), rl.Color.white);
 
         // Draw background
-        rl.drawRectangle(0, 0, @divFloor(SCREEN_WIDTH, 3), SCREEN_HEIGHT, rl.Color.green);
-        rl.drawRectangle(@divFloor(SCREEN_WIDTH * 2, 3), 0, @divFloor(SCREEN_WIDTH, 3), SCREEN_HEIGHT, rl.Color.green);
+
+        // Draw grass texture (left side)
+        rl.drawTextureRec(grassTexture, rl.Rectangle{ .x = 0, .y = 0, .width = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH, 3))), .height = @as(f32, @floatFromInt(SCREEN_HEIGHT)) }, rl.Vector2{ .x = 0, .y = 0 }, rl.Color.white);
+
+        // Draw grass texture (right side)
+        rl.drawTextureRec(grassTexture, rl.Rectangle{ .x = 0, .y = 0, .width = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH, 3))), .height = @as(f32, @floatFromInt(SCREEN_HEIGHT)) }, rl.Vector2{ .x = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH * 2, 3))), .y = 0 }, rl.Color.white);
+
+        // Draw road texture (middle)
+        // rl.drawTextureRec(roadTexture, rl.Rectangle{ .x = 0, .y = 0, .width = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH, 3))), .height = @as(f32, @floatFromInt(SCREEN_HEIGHT)) }, rl.Vector2{ .x = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH, 3))), .y = 0 }, rl.Color.white);
         rl.drawRectangle(@divFloor(SCREEN_WIDTH, 3), 0, @divFloor(SCREEN_WIDTH, 3), SCREEN_HEIGHT, rl.Color.gray);
-        rl.drawRectangle(@divFloor(SCREEN_WIDTH, 3) + @divFloor(SCREEN_WIDTH, 9) - 1, 0, 2, SCREEN_HEIGHT, rl.Color.black);
-        rl.drawRectangle(@divFloor(SCREEN_WIDTH, 3) + @divFloor(SCREEN_WIDTH * 2, 9) - 1, 0, 2, SCREEN_HEIGHT, rl.Color.black);
+        // rl.drawRectangle(@divFloor(SCREEN_WIDTH, 3) + @divFloor(SCREEN_WIDTH, 9) - 1, 0, 2, SCREEN_HEIGHT, rl.Color.b);
+        // rl.drawRectangle(@divFloor(SCREEN_WIDTH, 3) + @divFloor(SCREEN_WIDTH * 2, 9) - 1, 0, 2, SCREEN_HEIGHT, rl.Color.black);
 
         // Draw player car
         if (!vulnerable) {
