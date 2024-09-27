@@ -100,12 +100,8 @@ pub fn main() anyerror!void {
     for (&sourcesRectsCars, 0..) |*rect, j| {
         rect.x = @as(f32, @floatFromInt(j)) * rect.width;
 
-        const randomNumber = rand.intRangeAtMost(u8, 1, 3);
-        carsPos[j].x = switch (randomNumber) {
-            1 => @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3 + @as(f32, @floatFromInt(SCREEN_WIDTH)) / 18 - @as(f32, @floatFromInt(carsTextures.width)) / 12,
-            2 => @as(f32, @floatFromInt(SCREEN_WIDTH)) / 2 - @as(f32, @floatFromInt(carsTextures.width)) / 12,
-            else => @as(f32, @floatFromInt(SCREEN_WIDTH)) * 2 / 3 - @as(f32, @floatFromInt(SCREEN_WIDTH)) / 18 - @as(f32, @floatFromInt(carsTextures.width)) / 12,
-        };
+        carsPos[j].x = @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3 +
+            rand.float(f32) * @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3;
 
         carsPos[j].y = @as(f32, @floatFromInt(rand.intRangeAtMost(i32, 0, SCREEN_HEIGHT - @as(i32, carsTextures.height))));
         carsSpeed[j] = @as(f32, @floatFromInt(rand.intRangeAtMost(i32, 6, 10)));
@@ -146,14 +142,14 @@ pub fn main() anyerror!void {
         if (!gaveOver) {
             // Handle player input
             if (rl.isKeyDown(rl.KeyboardKey.key_h)) {
-                car.position.x -= @as(f32, @floatFromInt(car.speed));
+                car.position.x = @max(car.position.x - @as(f32, @floatFromInt(car.speed)), 0);
             } else if (rl.isKeyDown(rl.KeyboardKey.key_l)) {
-                car.position.x += @as(f32, @floatFromInt(car.speed));
+                car.position.x = @min(car.position.x + @as(f32, @floatFromInt(car.speed)), @as(f32, @floatFromInt(SCREEN_WIDTH)) - @as(f32, @floatFromInt(car.texture.width)));
             } else if (rl.isKeyDown(rl.KeyboardKey.key_k)) {
-                car.position.y -= @as(f32, @floatFromInt(car.speed));
+                car.position.y = @max(car.position.y - @as(f32, @floatFromInt(car.speed)), 0);
             } else if (rl.isKeyDown(rl.KeyboardKey.key_j)) {
                 rl.playSound(carBrake);
-                car.position.y += @as(f32, @floatFromInt(car.speed));
+                car.position.y = @min(car.position.y + @as(f32, @floatFromInt(car.speed)), @as(f32, @floatFromInt(SCREEN_HEIGHT)) - @as(f32, @floatFromInt(car.texture.height)));
             }
 
             // Update trees positions
@@ -171,12 +167,8 @@ pub fn main() anyerror!void {
                 if (carPos.y > @as(f32, @floatFromInt(SCREEN_HEIGHT))) {
                     carPos.y = -@as(f32, @floatFromInt(carsTextures.height));
 
-                    const randomNumber = rand.intRangeAtMost(u8, 1, 3);
-                    carPos.x = switch (randomNumber) {
-                        1 => @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3 + @as(f32, @floatFromInt(SCREEN_WIDTH)) / 18 - @as(f32, @floatFromInt(carsTextures.width)) / 12,
-                        2 => @as(f32, @floatFromInt(SCREEN_WIDTH)) / 2 - @as(f32, @floatFromInt(carsTextures.width)) / 12,
-                        else => @as(f32, @floatFromInt(SCREEN_WIDTH)) * 2 / 3 - @as(f32, @floatFromInt(SCREEN_WIDTH)) / 18 - @as(f32, @floatFromInt(carsTextures.width)) / 12,
-                    };
+                    carPos.x = @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3 +
+                        rand.float(f32) * @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3;
 
                     carsSpeed[k] = @as(f32, @floatFromInt(rand.intRangeAtMost(i32, 6, 10)));
                 }
