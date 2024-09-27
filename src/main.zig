@@ -142,9 +142,9 @@ pub fn main() anyerror!void {
         if (!gaveOver) {
             // Handle player input
             if (rl.isKeyDown(rl.KeyboardKey.key_h)) {
-                car.position.x = @max(car.position.x - @as(f32, @floatFromInt(car.speed)), 0);
+                car.position.x = @max(car.position.x - @as(f32, @floatFromInt(car.speed)), @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3);
             } else if (rl.isKeyDown(rl.KeyboardKey.key_l)) {
-                car.position.x = @min(car.position.x + @as(f32, @floatFromInt(car.speed)), @as(f32, @floatFromInt(SCREEN_WIDTH)) - @as(f32, @floatFromInt(car.texture.width)));
+                car.position.x = @min(car.position.x + @as(f32, @floatFromInt(car.speed)), @as(f32, @floatFromInt(SCREEN_WIDTH)) * 2 / 3 - @as(f32, @floatFromInt(car.texture.width)));
             } else if (rl.isKeyDown(rl.KeyboardKey.key_k)) {
                 car.position.y = @max(car.position.y - @as(f32, @floatFromInt(car.speed)), 0);
             } else if (rl.isKeyDown(rl.KeyboardKey.key_j)) {
