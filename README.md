@@ -2,8 +2,10 @@
 
 ## TODO
 - [x] Add sound to the car
-- [ ] Add textures for grass
-- [ ] Add texture for roads
-- [ ] Update asset icons
-- [ ] Add buildings
-- [ ] Show skyline
+- [x] Add textures for grass
+- [x] Add texture for roads
+- [x] Update asset icons
+
+## Demo
+
+![Demo](resources/tiny_car.mp4)

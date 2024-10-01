@@ -8,9 +8,105 @@ const Car = struct {
     speed: i32,
 };
 
+// Define Pear struct
+const Pear = struct {
+    position: rl.Vector2,
+    velocity: rl.Vector2,
+    lifetime: f32,
+};
+
 // Define screen dimensions
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 640;
+
+fn drawGrassTexture(texture: rl.Texture2D, offset: f32, side: enum { Left, Right }) void {
+    const x = if (side == .Left) 0 else @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH * 2, 3)));
+    rl.drawTextureRec(texture, rl.Rectangle{ .x = 0, .y = offset, .width = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH, 3))), .height = @as(f32, @floatFromInt(SCREEN_HEIGHT)) }, rl.Vector2{ .x = x, .y = -offset }, rl.Color.white);
+    rl.drawTextureRec(texture, rl.Rectangle{ .x = 0, .y = 0, .width = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH, 3))), .height = offset }, rl.Vector2{ .x = x, .y = @as(f32, @floatFromInt(SCREEN_HEIGHT)) - offset }, rl.Color.white);
+}
+
+fn handleCarCollision(playerCar: *Car, otherCar: rl.Vector2, otherCarSize: rl.Vector2, vulnerable: *bool, lives: *i32, carCrash: rl.Sound, pears: *std.ArrayList(Pear), rand: std.Random) !void {
+    const rec1 = rl.Rectangle{
+        .x = playerCar.position.x,
+        .y = playerCar.position.y,
+        .width = @floatFromInt(playerCar.texture.width),
+        .height = @floatFromInt(playerCar.texture.height),
+    };
+
+    const rec2 = rl.Rectangle{
+        .x = otherCar.x,
+        .y = otherCar.y,
+        .width = otherCarSize.x,
+        .height = otherCarSize.y,
+    };
+
+    if (rl.checkCollisionRecs(rec1, rec2)) {
+        if (vulnerable.*) {
+            lives.* -= 1;
+            vulnerable.* = false;
+            rl.playSound(carCrash);
+
+            // Drop a pear at the collision location with random velocity
+            try pears.append(Pear{
+                .position = rl.Vector2{
+                    .x = playerCar.position.x,
+                    .y = playerCar.position.y,
+                },
+                .velocity = rl.Vector2{
+                    .x = rand.float(f32) * 200 - 100, // Random x velocity between -100 and 100
+                    .y = rand.float(f32) * 100 + 50, // Random y velocity between 50 and 150
+                },
+                .lifetime = 3.0, // 3 seconds lifetime
+            });
+        }
+        playerCar.position.y -= @as(f32, @floatFromInt(playerCar.texture.height)) - 10;
+    }
+}
+
+fn updateCarPosition(carPos: *rl.Vector2, carSpeed: *f32, rand: std.Random, carsTextures: rl.Texture2D) void {
+    carPos.y += carSpeed.*;
+
+    if (carPos.y > @as(f32, @floatFromInt(SCREEN_HEIGHT))) {
+        carPos.y = -@as(f32, @floatFromInt(carsTextures.height));
+
+        carPos.x = @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3 +
+            rand.float(f32) * @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3;
+
+        carSpeed.* = @as(f32, @floatFromInt(rand.intRangeAtMost(i32, 6, 10)));
+    }
+}
+
+fn drawGameStats(score: i32, lives: i32) !void {
+    rl.drawRectangle(10, 10, 100, 75, rl.Color.sky_blue.fade(0.9));
+    rl.drawRectangleLines(10, 10, 100, 75, rl.Color.sky_blue.fade(0.9));
+
+    rl.drawFPS(710, 10);
+    rl.drawText("Game Stats", 20, 20, 10, rl.Color.black);
+
+    var scoring: [20]u8 = undefined;
+    const scoreText = try std.fmt.bufPrintZ(&scoring, "Score: {d}/1000", .{score});
+    rl.drawText(scoreText, 20, 40, 10, rl.Color.dark_gray);
+    var livesScoring: [20]u8 = undefined;
+    const livesText = try std.fmt.bufPrintZ(&livesScoring, "Lives: {d}/9", .{lives});
+    rl.drawText(livesText, 20, 60, 10, rl.Color.dark_gray);
+}
+
+fn updatePears(pears: *std.ArrayList(Pear), deltaTime: f32) !void {
+    var i: usize = 0;
+    while (i < pears.items.len) {
+        var pear = &pears.items[i];
+        pear.position.x += pear.velocity.x * deltaTime;
+        pear.position.y += pear.velocity.y * deltaTime;
+        pear.velocity.y += 500 * deltaTime; // Add gravity
+        pear.lifetime -= deltaTime;
+
+        if (pear.lifetime <= 0 or pear.position.y > SCREEN_HEIGHT) {
+            _ = pears.swapRemove(i);
+        } else {
+            i += 1;
+        }
+    }
+}
 
 pub fn main() anyerror!void {
 
@@ -27,6 +123,14 @@ pub fn main() anyerror!void {
     // Load car texture
     const carTexture = rl.loadTexture("resources/textures/car.png");
     defer rl.unloadTexture(carTexture);
+
+    // Load pear texture
+    const pearTexture = rl.loadTexture("resources/textures/pear.png");
+    defer rl.unloadTexture(pearTexture);
+
+    // Initialize pears list
+    var pears = std.ArrayList(Pear).init(std.heap.page_allocator);
+    defer pears.deinit();
 
     // // Initialize player car
     var car = Car{ .texture = carTexture, .position = rl.Vector2{
@@ -83,6 +187,9 @@ pub fn main() anyerror!void {
     const grassTexture = rl.loadTexture("resources/textures/grass.png");
     defer rl.unloadTexture(grassTexture);
 
+    // Variable to track grass scroll offset
+    var grassScrollOffset: f32 = 0;
+
     // Load road texture
     const roadTexture = rl.loadTexture("resources/textures/road.png");
     defer rl.unloadTexture(roadTexture);
@@ -113,9 +220,11 @@ pub fn main() anyerror!void {
 
     const carBrake = rl.loadSound("resources/sound/brake.mp3");
     defer rl.unloadSound(carBrake);
+    rl.setSoundVolume(carBrake, 0.3); // Set volume to 30%
 
     const carCrash = rl.loadSound("resources/sound/car-crash.mp3");
     defer rl.unloadSound(carCrash);
+    rl.setSoundVolume(carCrash, 0.1); // Set volume to 30%
 
     // Define rectangle covering the entire screen
     const rmuteScreen = rl.Rectangle{
@@ -140,6 +249,17 @@ pub fn main() anyerror!void {
     while (!rl.windowShouldClose()) {
         // Update game state
         if (!gaveOver) {
+            const deltaTime = rl.getFrameTime();
+
+            // Update grass scroll offset
+            grassScrollOffset += @as(f32, @floatFromInt(car.speed));
+            if (grassScrollOffset >= @as(f32, @floatFromInt(grassTexture.height))) {
+                grassScrollOffset -= @as(f32, @floatFromInt(grassTexture.height));
+            }
+
+            // Update pears
+            try updatePears(&pears, deltaTime);
+
             // Handle player input
             if (rl.isKeyDown(rl.KeyboardKey.key_h)) {
                 car.position.x = @max(car.position.x - @as(f32, @floatFromInt(car.speed)), @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3);
@@ -162,16 +282,7 @@ pub fn main() anyerror!void {
 
             // Update other cars positions and check for collisions
             for (&carsPos, 0..) |*carPos, k| {
-                carPos.y += carsSpeed[k];
-
-                if (carPos.y > @as(f32, @floatFromInt(SCREEN_HEIGHT))) {
-                    carPos.y = -@as(f32, @floatFromInt(carsTextures.height));
-
-                    carPos.x = @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3 +
-                        rand.float(f32) * @as(f32, @floatFromInt(SCREEN_WIDTH)) / 3;
-
-                    carsSpeed[k] = @as(f32, @floatFromInt(rand.intRangeAtMost(i32, 6, 10)));
-                }
+                updateCarPosition(carPos, &carsSpeed[k], rand, carsTextures);
 
                 // Check if the player's car has passed the other cars
                 if (car.position.y < carPos.y + @as(f32, @floatFromInt(carsTextures.height)) and car.position.y + @as(f32, @floatFromInt(car.texture.height)) > carPos.y + @as(f32, @floatFromInt(carsTextures.height))) {
@@ -179,29 +290,7 @@ pub fn main() anyerror!void {
                     score += 1;
                 }
 
-                // Check for collision between player car and other cars
-                const rec1 = rl.Rectangle{
-                    .x = car.position.x,
-                    .y = car.position.y,
-                    .width = @floatFromInt(car.texture.width),
-                    .height = @floatFromInt(car.texture.height),
-                };
-
-                const rec2 = rl.Rectangle{
-                    .x = carPos.x,
-                    .y = carPos.y,
-                    .width = @as(f32, @floatFromInt(carsTextures.width)) / 6,
-                    .height = @floatFromInt(carsTextures.height),
-                };
-
-                if (rl.checkCollisionRecs(rec1, rec2)) {
-                    if (vulnerable) {
-                        lives -= 1;
-                        vulnerable = false;
-                        rl.playSound(carCrash);
-                    }
-                    car.position.y -= @as(f32, @floatFromInt(car.texture.height)) - 10;
-                }
+                try handleCarCollision(&car, carPos.*, rl.Vector2{ .x = @as(f32, @floatFromInt(carsTextures.width)) / 6, .y = @floatFromInt(carsTextures.height) }, &vulnerable, &lives, carCrash, &pears, rand);
             }
 
             // Handle vulnerability period after collision
@@ -251,17 +340,12 @@ pub fn main() anyerror!void {
 
         // Draw background
 
-        // Draw grass texture (left side)
-        rl.drawTextureRec(grassTexture, rl.Rectangle{ .x = 0, .y = 0, .width = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH, 3))), .height = @as(f32, @floatFromInt(SCREEN_HEIGHT)) }, rl.Vector2{ .x = 0, .y = 0 }, rl.Color.white);
-
-        // Draw grass texture (right side)
-        rl.drawTextureRec(grassTexture, rl.Rectangle{ .x = 0, .y = 0, .width = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH, 3))), .height = @as(f32, @floatFromInt(SCREEN_HEIGHT)) }, rl.Vector2{ .x = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH * 2, 3))), .y = 0 }, rl.Color.white);
+        // Draw grass textures
+        drawGrassTexture(grassTexture, grassScrollOffset, .Left);
+        drawGrassTexture(grassTexture, grassScrollOffset, .Right);
 
         // Draw road texture (middle)
-        // rl.drawTextureRec(roadTexture, rl.Rectangle{ .x = 0, .y = 0, .width = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH, 3))), .height = @as(f32, @floatFromInt(SCREEN_HEIGHT)) }, rl.Vector2{ .x = @as(f32, @floatFromInt(@divFloor(SCREEN_WIDTH, 3))), .y = 0 }, rl.Color.white);
         rl.drawRectangle(@divFloor(SCREEN_WIDTH, 3), 0, @divFloor(SCREEN_WIDTH, 3), SCREEN_HEIGHT, rl.Color.gray);
-        // rl.drawRectangle(@divFloor(SCREEN_WIDTH, 3) + @divFloor(SCREEN_WIDTH, 9) - 1, 0, 2, SCREEN_HEIGHT, rl.Color.b);
-        // rl.drawRectangle(@divFloor(SCREEN_WIDTH, 3) + @divFloor(SCREEN_WIDTH * 2, 9) - 1, 0, 2, SCREEN_HEIGHT, rl.Color.black);
 
         // Draw player car
         if (!vulnerable) {
@@ -286,18 +370,14 @@ pub fn main() anyerror!void {
             rl.drawTextureRec(treesTexture, sourceRects[n % 3], treePos, rl.Color.white);
         }
 
-        rl.drawRectangle(10, 10, 100, 75, rl.Color.sky_blue.fade(0.9));
-        rl.drawRectangleLines(10, 10, 100, 75, rl.Color.sky_blue.fade(0.9));
+        // Draw pears
+        for (pears.items) |pear| {
+            const alpha = @as(u8, @intFromFloat(@min(pear.lifetime / 3.0, 1.0) * 255));
+            const color = rl.Color{ .r = 255, .g = 255, .b = 255, .a = alpha };
+            rl.drawTexture(pearTexture, @intFromFloat(pear.position.x), @intFromFloat(pear.position.y), color);
+        }
 
-        rl.drawFPS(710, 10);
-        rl.drawText("Game Stats", 20, 20, 10, rl.Color.black);
-
-        var scoring: [20]u8 = undefined;
-        const scoreText = try std.fmt.bufPrintZ(&scoring, "Score: {d}/1000", .{score});
-        rl.drawText(scoreText, 20, 40, 10, rl.Color.dark_gray);
-        var livesScoring: [20]u8 = undefined;
-        const livesText = try std.fmt.bufPrintZ(&livesScoring, "Lives: {d}/9", .{lives});
-        rl.drawText(livesText, 20, 60, 10, rl.Color.dark_gray);
+        try drawGameStats(score, lives);
 
         // Draw game over screen
         if (gaveOver) {
