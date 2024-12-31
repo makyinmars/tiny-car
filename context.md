@@ -1,3 +1,228 @@
+Directory Structure:
+└── main.zig
+└── raylib.zig
+└── shell.html
+
+File Contents:
+
+File: raylib.zig
+================================================
+pub usingnamespace @cImport({
+    @cInclude("raylib.h");
+    @cInclude("raymath.h");
+    @cInclude("rlgl.h");
+});
+
+
+File: shell.html
+================================================
+<!doctype html>
+<html lang="en-us">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>15 Game</title>
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+	<style>
+		body {
+			padding: 0;
+			margin: 0;
+		}
+
+		.emscripten {
+			padding-right: 0;
+			margin-left: auto;
+			margin-right: auto;
+			display: block;
+		}
+
+		textarea.emscripten {
+			font-family: monospace;
+			width: 80%;
+		}
+
+		div.emscripten {
+			text-align: center;
+		}
+
+		div.emscripten_border {
+			border: 1px solid black;
+		}
+
+		/* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+		canvas.emscripten {
+			border: 0px none;
+			background-color: black;
+		}
+
+		.spinner {
+			height: 50px;
+			width: 50px;
+			margin: 0px auto;
+			-webkit-animation: rotation .8s linear infinite;
+			-moz-animation: rotation .8s linear infinite;
+			-o-animation: rotation .8s linear infinite;
+			animation: rotation 0.8s linear infinite;
+			border-left: 10px solid rgb(0, 150, 240);
+			border-right: 10px solid rgb(0, 150, 240);
+			border-bottom: 10px solid rgb(0, 150, 240);
+			border-top: 10px solid rgb(100, 0, 200);
+			border-radius: 100%;
+			background-color: rgb(200, 100, 250);
+		}
+
+		@-webkit-keyframes rotation {
+			from {
+				-webkit-transform: rotate(0deg);
+			}
+
+			to {
+				-webkit-transform: rotate(360deg);
+			}
+		}
+
+		@-moz-keyframes rotation {
+			from {
+				-moz-transform: rotate(0deg);
+			}
+
+			to {
+				-moz-transform: rotate(360deg);
+			}
+		}
+
+		@-o-keyframes rotation {
+			from {
+				-o-transform: rotate(0deg);
+			}
+
+			to {
+				-o-transform: rotate(360deg);
+			}
+		}
+
+		@keyframes rotation {
+			from {
+				transform: rotate(0deg);
+			}
+
+			to {
+				transform: rotate(360deg);
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<figure style="overflow:visible;" id="spinner">
+		<div class="spinner"></div>
+		<center style="margin-top:0.5em"><strong>emscripten</strong></center>
+	</figure>
+	<div class="emscripten" id="status">Downloading...</div>
+	<div class="emscripten">
+		<progress value="0" max="100" id="progress" hidden=1></progress>
+	</div>
+	<div class="emscripten_border">
+		<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+	</div>
+	<hr />
+	<div class="emscripten">
+		<input type="checkbox" id="resize">Resize canvas
+		<input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
+		&nbsp;&nbsp;&nbsp;
+		<input type="button" value="Fullscreen"
+			onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
+                                                                                document.getElementById('resize').checked)">
+	</div>
+
+	<hr />
+	<textarea class="emscripten" id="output" rows="8"></textarea>
+	<hr>
+	<script type='text/javascript'>
+		var statusElement = document.getElementById('status');
+		var progressElement = document.getElementById('progress');
+		var spinnerElement = document.getElementById('spinner');
+
+		var Module = {
+			print: (function () {
+				var element = document.getElementById('output');
+				if (element) element.value = ''; // clear browser cache
+				return (...args) => {
+					var text = args.join(' ');
+					// These replacements are necessary if you render to raw HTML
+					//text = text.replace(/&/g, "&amp;");
+					//text = text.replace(/</g, "&lt;");
+					//text = text.replace(/>/g, "&gt;");
+					//text = text.replace('\n', '<br>', 'g');
+					console.log(text);
+					if (element) {
+						element.value += text + "\n";
+						element.scrollTop = element.scrollHeight; // focus on bottom
+					}
+				};
+			})(),
+			canvas: (() => {
+				var canvas = document.getElementById('canvas');
+
+				// As a default initial behavior, pop up an alert when webgl context is lost. To make your
+				// application robust, you may want to override this behavior before shipping!
+				// See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+				canvas.addEventListener("webglcontextlost", (e) => {alert('WebGL context lost. You will need to reload the page.'); e.preventDefault();}, false);
+				canvas.addEventListener("keydown", (e) => {
+					if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "F1", "F3", "F5"].indexOf(e.code) > -1) {
+						e.preventDefault();
+					}
+				}, false);
+				canvas.focus();
+
+				return canvas;
+			})(),
+			setStatus: (text) => {
+				if (!Module.setStatus.last) Module.setStatus.last = {time: Date.now(), text: ''};
+				if (text === Module.setStatus.last.text) return;
+				var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+				var now = Date.now();
+				if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+				Module.setStatus.last.time = now;
+				Module.setStatus.last.text = text;
+				if (m) {
+					text = m[1];
+					progressElement.value = parseInt(m[2]) * 100;
+					progressElement.max = parseInt(m[4]) * 100;
+					progressElement.hidden = false;
+					spinnerElement.hidden = false;
+				} else {
+					progressElement.value = null;
+					progressElement.max = null;
+					progressElement.hidden = true;
+					if (!text) spinnerElement.hidden = true;
+				}
+				statusElement.innerHTML = text;
+			},
+			totalDependencies: 0,
+			monitorRunDependencies: (left) => {
+				this.totalDependencies = Math.max(this.totalDependencies, left);
+				Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+			}
+		};
+		Module.setStatus('Downloading...');
+		window.onerror = () => {
+			Module.setStatus('Exception thrown, see JavaScript console');
+			spinnerElement.style.display = 'none';
+			Module.setStatus = (text) => {
+				if (text) console.error('[post-exception status] ' + text);
+			};
+		};
+	</script>
+	{{{ SCRIPT }}}
+</body>
+
+</html>
+
+
+File: main.zig
+================================================
 const rl = @import("raylib.zig");
 const std = @import("std");
 
@@ -510,3 +735,167 @@ pub fn main() anyerror!void {
         }
     }
 }
+
+
+Summary:
+Total files: 3
+Total size: 25284 bytes
+
+**Physics Engine**:
+   - Implement a basic physics engine to handle more realistic movements, such as acceleration, deceleration, and momentum.
+   - Add **gravity** and **friction** effects to make the car and other objects behave more naturally.
+
+Implementing a physics engine in a game like "Tiny Car Game" involves simulating realistic movements such as acceleration, deceleration, and momentum. Additionally, incorporating gravity and friction will make the car and other objects behave more naturally. Below is an optimized implementation of a physics engine in Zig, along with documentation explaining the design choices.
+
+### Physics Engine Implementation
+
+```zig
+const rl = @import("raylib.zig");
+const std = @import("std");
+
+// Define Physics struct to encapsulate physics-related properties
+const Physics = struct {
+    velocity: rl.Vector2,
+    acceleration: rl.Vector2,
+    mass: f32,
+    friction: f32,
+    gravity: f32,
+
+    // Initialize physics properties
+    fn init(mass: f32, friction: f32, gravity: f32) Physics {
+        return Physics{
+            .velocity = rl.Vector2{ .x = 0, .y = 0 },
+            .acceleration = rl.Vector2{ .x = 0, .y = 0 },
+            .mass = mass,
+            .friction = friction,
+            .gravity = gravity,
+        };
+    }
+
+    // Update the physics state based on forces and time
+    fn update(self: *Physics, deltaTime: f32) void {
+        // Apply gravity
+        self.velocity.y += self.gravity * deltaTime;
+
+        // Apply friction
+        self.velocity.x *= 1.0 - self.friction * deltaTime;
+        self.velocity.y *= 1.0 - self.friction * deltaTime;
+
+        // Update velocity based on acceleration
+        self.velocity.x += self.acceleration.x * deltaTime;
+        self.velocity.y += self.acceleration.y * deltaTime;
+
+        // Reset acceleration for the next frame
+        self.acceleration = rl.Vector2{ .x = 0, .y = 0 };
+    }
+
+    // Apply a force to the object
+    fn applyForce(self: *Physics, force: rl.Vector2) void {
+        self.acceleration.x += force.x / self.mass;
+        self.acceleration.y += force.y / self.mass;
+    }
+};
+
+// Modify the Car struct to include physics
+const Car = struct {
+    texture: rl.Texture2D,
+    position: rl.Vector2,
+    physics: Physics,
+};
+
+// Modify the Pear struct to include physics
+const Pear = struct {
+    position: rl.Vector2,
+    physics: Physics,
+    lifetime: f32,
+};
+
+// Update the car's position based on physics
+fn updateCarPhysics(car: *Car, deltaTime: f32) void {
+    car.physics.update(deltaTime);
+    car.position.x += car.physics.velocity.x * deltaTime;
+    car.position.y += car.physics.velocity.y * deltaTime;
+}
+
+// Update the pear's position based on physics
+fn updatePearPhysics(pear: *Pear, deltaTime: f32) void {
+    pear.physics.update(deltaTime);
+    pear.position.x += pear.physics.velocity.x * deltaTime;
+    pear.position.y += pear.physics.velocity.y * deltaTime;
+}
+
+// Example usage in the main game loop
+pub fn main() anyerror!void {
+    // Initialize window and other resources
+    rl.InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Tiny Car Game");
+    defer rl.CloseWindow();
+
+    // Initialize car with physics
+    var car = Car{
+        .texture = rl.LoadTexture("resources/textures/car.png"),
+        .position = rl.Vector2{ .x = SCREEN_WIDTH / 2, .y = SCREEN_HEIGHT / 2 },
+        .physics = Physics.init(1.0, 0.1, 9.8),
+    };
+
+    // Main game loop
+    while (!rl.WindowShouldClose()) {
+        const deltaTime = rl.GetFrameTime();
+
+        // Handle input to apply forces to the car
+        if (rl.IsKeyDown(rl.KEY_H)) {
+            car.physics.applyForce(rl.Vector2{ .x = -100, .y = 0 });
+        } else if (rl.IsKeyDown(rl.KEY_L)) {
+            car.physics.applyForce(rl.Vector2{ .x = 100, .y = 0 });
+        } else if (rl.IsKeyDown(rl.KEY_K)) {
+            car.physics.applyForce(rl.Vector2{ .x = 0, .y = -100 });
+        } else if (rl.IsKeyDown(rl.KEY_J)) {
+            car.physics.applyForce(rl.Vector2{ .x = 0, .y = 100 });
+        }
+
+        // Update car physics
+        updateCarPhysics(&car, deltaTime);
+
+        // Draw game elements
+        rl.BeginDrawing();
+        defer rl.EndDrawing();
+
+        rl.ClearBackground(rl.WHITE);
+        rl.DrawTexture(car.texture, @intFromFloat(car.position.x), @intFromFloat(car.position.y), rl.WHITE);
+    }
+}
+```
+
+### Documentation
+
+#### **Physics Engine Design**
+
+1. **Physics Struct**:
+   - **Velocity**: Represents the current speed and direction of the object.
+   - **Acceleration**: Represents the rate of change of velocity.
+   - **Mass**: Affects how forces influence the object's acceleration (F = ma).
+   - **Friction**: Simulates the resistance that slows down the object over time.
+   - **Gravity**: Simulates the force pulling the object downward.
+
+2. **Update Method**:
+   - **Gravity**: Continuously applies a downward force to simulate gravity.
+   - **Friction**: Gradually reduces the velocity to simulate friction.
+   - **Velocity Update**: Adjusts the velocity based on the current acceleration.
+   - **Acceleration Reset**: Resets acceleration after applying forces to prepare for the next frame.
+
+3. **ApplyForce Method**:
+   - **Force Application**: Adds a force to the object, which is divided by the mass to calculate acceleration.
+
+4. **Optimization**:
+   - **Delta Time**: Ensures that physics calculations are frame-rate independent by using delta time.
+   - **Minimal Calculations**: Only necessary calculations are performed each frame to maintain high performance.
+
+#### **Why This Implementation?**
+
+- **Realism**: The physics engine simulates real-world behaviors like gravity and friction, making the game more immersive.
+- **Flexibility**: The `Physics` struct can be reused for different objects (e.g., cars, pears) with different properties.
+- **Performance**: The engine is optimized to minimize computational overhead, ensuring smooth gameplay even on lower-end devices.
+- **Ease of Use**: The `applyForce` method makes it easy to add new forces (e.g., player input, collisions) without modifying the core physics logic.
+
+### Conclusion
+
+This physics engine provides a robust and efficient way to simulate realistic movements in the "Tiny Car Game." By encapsulating physics properties and behaviors in a reusable struct, the engine is both flexible and easy to integrate into the existing game logic. The use of delta time ensures that the physics calculations are consistent across different frame rates, making the game more stable and predictable.
