@@ -65,11 +65,11 @@ pub fn build(b: *std.Build) void {
         "Strip debug info to reduce binary size, defaults to false",
     ) orelse false;
 
-    const raylib_dep = b.dependency("raylib", .{
+    const raylib_dep = b.dependency("raylib_zig", .{
         .target = actual_target,
         .optimize = raylib_optimize,
-        .rmodels = false,
     });
+    const raylib = raylib_dep.module("raylib");
     const raylib_artifact = raylib_dep.artifact("raylib");
 
     const app = App{
@@ -95,7 +95,7 @@ pub fn build(b: *std.Build) void {
         exe_lib.root_module.single_threaded = false;
 
         exe_lib.linkLibrary(raylib_artifact);
-        exe_lib.addIncludePath(raylib_dep.path("src"));
+        exe_lib.root_module.addImport("raylib", raylib);
 
         const sysroot_include = b.pathJoin(&.{ b.sysroot.?, "cache", "sysroot", "include" });
         var dir = std.fs.openDirAbsolute(sysroot_include, std.fs.Dir.OpenDirOptions{ .access_sub_paths = true, .no_follow = true }) catch @panic("No emscripten cache. Generate it!");
@@ -179,6 +179,7 @@ pub fn build(b: *std.Build) void {
         addAssets(b, exe);
         exe.root_module.strip = strip;
         exe.linkLibrary(raylib_artifact);
+        exe.root_module.addImport("raylib", raylib);
         b.installArtifact(exe);
 
         const run_cmd = b.addRunArtifact(exe);
@@ -196,6 +197,7 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         });
         addAssets(b, unit_tests);
+        unit_tests.root_module.addImport("raylib", raylib);
 
         const run_unit_tests = b.addRunArtifact(unit_tests);
         const test_step = b.step("test", "Run unit tests");
