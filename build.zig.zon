@@ -2,17 +2,24 @@
     .fingerprint = 0x12f96c61dffd069f,
     .name = .tinycar,
     .version = "0.0.1",
+    .minimum_zig_version = "0.16.0",
     .dependencies = .{
         .raylib_zig = .{
-            .url = "git+https://github.com/Not-Nik/raylib-zig?ref=devel#3bf08a304cfe2baf839705063ff999b8d8bc8c54",
-            .hash = "raylib_zig-5.6.0-dev-KE8REKAqBQAQugfCOjYYVRFOi7iaEJK1EMDcRUq8AOm2",
+            .url = "git+https://github.com/raylib-zig/raylib-zig#8758f4cd3a5ae0df6941c4715257223d34c5ad3e",
+            .hash = "raylib_zig-6.0.0-KE8RECZ8BQDm-txuospkpZHbJ6DNpacUF7D88RWQ_qAe",
+        },
+        .emsdk = .{
+            .url = "git+https://github.com/emscripten-core/emsdk?ref=6.0.9#5eb0bde7585670252e8ba05e9d361627bffd08b5",
+            .hash = "N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E",
         },
     },
     .paths = .{
         "build.zig",
         "build.zig.zon",
+        "emcc.zig",
         "README.md",
         "src",
         "resources",
+        "web",
     },
 }

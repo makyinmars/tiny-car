@@ -1,0 +1,28 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "no-undef": "error"
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    ".zig-cache/",
+    "zig-out/",
+    ".lambda/",
+    ".local/",
+    "zig-pkg/",
+    "deps/"
+  ],
+  "overrides": [
+    {
+      "files": ["web/**/*.js"],
+      "env": { "browser": true }
+    },
+    {
+      "files": ["server/**/*.mjs", "scripts/**/*.mjs", "tests/**/*.mjs"],
+      "env": { "node": true }
+    }
+  ]
+}

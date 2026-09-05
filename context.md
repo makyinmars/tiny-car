@@ -7,222 +7,223 @@ File Contents:
 
 File: raylib.zig
 ================================================
+
 pub usingnamespace @cImport({
     @cInclude("raylib.h");
     @cInclude("raymath.h");
     @cInclude("rlgl.h");
 });
 
-
 File: shell.html
 ================================================
+
 <!doctype html>
 <html lang="en-us">
 
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>15 Game</title>
-	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<style>
-		body {
-			padding: 0;
-			margin: 0;
-		}
+ <meta charset="utf-8">
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <title>15 Game</title>
+ <link rel="icon" href="favicon.ico" type="image/x-icon">
+ <style>
+  body {
+   padding: 0;
+   margin: 0;
+  }
 
-		.emscripten {
-			padding-right: 0;
-			margin-left: auto;
-			margin-right: auto;
-			display: block;
-		}
+  .emscripten {
+   padding-right: 0;
+   margin-left: auto;
+   margin-right: auto;
+   display: block;
+  }
 
-		textarea.emscripten {
-			font-family: monospace;
-			width: 80%;
-		}
+  textarea.emscripten {
+   font-family: monospace;
+   width: 80%;
+  }
 
-		div.emscripten {
-			text-align: center;
-		}
+  div.emscripten {
+   text-align: center;
+  }
 
-		div.emscripten_border {
-			border: 1px solid black;
-		}
+  div.emscripten_border {
+   border: 1px solid black;
+  }
 
-		/* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-		canvas.emscripten {
-			border: 0px none;
-			background-color: black;
-		}
+  /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+  canvas.emscripten {
+   border: 0px none;
+   background-color: black;
+  }
 
-		.spinner {
-			height: 50px;
-			width: 50px;
-			margin: 0px auto;
-			-webkit-animation: rotation .8s linear infinite;
-			-moz-animation: rotation .8s linear infinite;
-			-o-animation: rotation .8s linear infinite;
-			animation: rotation 0.8s linear infinite;
-			border-left: 10px solid rgb(0, 150, 240);
-			border-right: 10px solid rgb(0, 150, 240);
-			border-bottom: 10px solid rgb(0, 150, 240);
-			border-top: 10px solid rgb(100, 0, 200);
-			border-radius: 100%;
-			background-color: rgb(200, 100, 250);
-		}
+  .spinner {
+   height: 50px;
+   width: 50px;
+   margin: 0px auto;
+   -webkit-animation: rotation .8s linear infinite;
+   -moz-animation: rotation .8s linear infinite;
+   -o-animation: rotation .8s linear infinite;
+   animation: rotation 0.8s linear infinite;
+   border-left: 10px solid rgb(0, 150, 240);
+   border-right: 10px solid rgb(0, 150, 240);
+   border-bottom: 10px solid rgb(0, 150, 240);
+   border-top: 10px solid rgb(100, 0, 200);
+   border-radius: 100%;
+   background-color: rgb(200, 100, 250);
+  }
 
-		@-webkit-keyframes rotation {
-			from {
-				-webkit-transform: rotate(0deg);
-			}
+  @-webkit-keyframes rotation {
+   from {
+    -webkit-transform: rotate(0deg);
+   }
 
-			to {
-				-webkit-transform: rotate(360deg);
-			}
-		}
+   to {
+    -webkit-transform: rotate(360deg);
+   }
+  }
 
-		@-moz-keyframes rotation {
-			from {
-				-moz-transform: rotate(0deg);
-			}
+  @-moz-keyframes rotation {
+   from {
+    -moz-transform: rotate(0deg);
+   }
 
-			to {
-				-moz-transform: rotate(360deg);
-			}
-		}
+   to {
+    -moz-transform: rotate(360deg);
+   }
+  }
 
-		@-o-keyframes rotation {
-			from {
-				-o-transform: rotate(0deg);
-			}
+  @-o-keyframes rotation {
+   from {
+    -o-transform: rotate(0deg);
+   }
 
-			to {
-				-o-transform: rotate(360deg);
-			}
-		}
+   to {
+    -o-transform: rotate(360deg);
+   }
+  }
 
-		@keyframes rotation {
-			from {
-				transform: rotate(0deg);
-			}
+  @keyframes rotation {
+   from {
+    transform: rotate(0deg);
+   }
 
-			to {
-				transform: rotate(360deg);
-			}
-		}
-	</style>
+   to {
+    transform: rotate(360deg);
+   }
+  }
+ </style>
 </head>
 
 <body>
-	<figure style="overflow:visible;" id="spinner">
-		<div class="spinner"></div>
-		<center style="margin-top:0.5em"><strong>emscripten</strong></center>
-	</figure>
-	<div class="emscripten" id="status">Downloading...</div>
-	<div class="emscripten">
-		<progress value="0" max="100" id="progress" hidden=1></progress>
-	</div>
-	<div class="emscripten_border">
-		<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
-	</div>
-	<hr />
-	<div class="emscripten">
-		<input type="checkbox" id="resize">Resize canvas
-		<input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
-		&nbsp;&nbsp;&nbsp;
-		<input type="button" value="Fullscreen"
-			onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
+ <figure style="overflow:visible;" id="spinner">
+  <div class="spinner"></div>
+  <center style="margin-top:0.5em"><strong>emscripten</strong></center>
+ </figure>
+ <div class="emscripten" id="status">Downloading...</div>
+ <div class="emscripten">
+  <progress value="0" max="100" id="progress" hidden=1></progress>
+ </div>
+ <div class="emscripten_border">
+  <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+ </div>
+ <hr />
+ <div class="emscripten">
+  <input type="checkbox" id="resize">Resize canvas
+  <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
+  &nbsp;&nbsp;&nbsp;
+  <input type="button" value="Fullscreen"
+   onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked,
                                                                                 document.getElementById('resize').checked)">
-	</div>
+ </div>
 
-	<hr />
-	<textarea class="emscripten" id="output" rows="8"></textarea>
-	<hr>
-	<script type='text/javascript'>
-		var statusElement = document.getElementById('status');
-		var progressElement = document.getElementById('progress');
-		var spinnerElement = document.getElementById('spinner');
+ <hr />
+ <textarea class="emscripten" id="output" rows="8"></textarea>
+ <hr>
+ <script type='text/javascript'>
+  var statusElement = document.getElementById('status');
+  var progressElement = document.getElementById('progress');
+  var spinnerElement = document.getElementById('spinner');
 
-		var Module = {
-			print: (function () {
-				var element = document.getElementById('output');
-				if (element) element.value = ''; // clear browser cache
-				return (...args) => {
-					var text = args.join(' ');
-					// These replacements are necessary if you render to raw HTML
-					//text = text.replace(/&/g, "&amp;");
-					//text = text.replace(/</g, "&lt;");
-					//text = text.replace(/>/g, "&gt;");
-					//text = text.replace('\n', '<br>', 'g');
-					console.log(text);
-					if (element) {
-						element.value += text + "\n";
-						element.scrollTop = element.scrollHeight; // focus on bottom
-					}
-				};
-			})(),
-			canvas: (() => {
-				var canvas = document.getElementById('canvas');
+  var Module = {
+   print: (function () {
+    var element = document.getElementById('output');
+    if (element) element.value = ''; // clear browser cache
+    return (...args) => {
+     var text = args.join(' ');
+     // These replacements are necessary if you render to raw HTML
+     //text = text.replace(/&/g, "&amp;");
+     //text = text.replace(/</g, "&lt;");
+     //text = text.replace(/>/g, "&gt;");
+     //text = text.replace('\n', '<br>', 'g');
+     console.log(text);
+     if (element) {
+      element.value += text + "\n";
+      element.scrollTop = element.scrollHeight; // focus on bottom
+     }
+    };
+   })(),
+   canvas: (() => {
+    var canvas = document.getElementById('canvas');
 
-				// As a default initial behavior, pop up an alert when webgl context is lost. To make your
-				// application robust, you may want to override this behavior before shipping!
-				// See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
-				canvas.addEventListener("webglcontextlost", (e) => {alert('WebGL context lost. You will need to reload the page.'); e.preventDefault();}, false);
-				canvas.addEventListener("keydown", (e) => {
-					if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "F1", "F3", "F5"].indexOf(e.code) > -1) {
-						e.preventDefault();
-					}
-				}, false);
-				canvas.focus();
+    // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+    // application robust, you may want to override this behavior before shipping!
+    // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+    canvas.addEventListener("webglcontextlost", (e) => {alert('WebGL context lost. You will need to reload the page.'); e.preventDefault();}, false);
+    canvas.addEventListener("keydown", (e) => {
+     if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "F1", "F3", "F5"].indexOf(e.code) > -1) {
+      e.preventDefault();
+     }
+    }, false);
+    canvas.focus();
 
-				return canvas;
-			})(),
-			setStatus: (text) => {
-				if (!Module.setStatus.last) Module.setStatus.last = {time: Date.now(), text: ''};
-				if (text === Module.setStatus.last.text) return;
-				var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
-				var now = Date.now();
-				if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
-				Module.setStatus.last.time = now;
-				Module.setStatus.last.text = text;
-				if (m) {
-					text = m[1];
-					progressElement.value = parseInt(m[2]) * 100;
-					progressElement.max = parseInt(m[4]) * 100;
-					progressElement.hidden = false;
-					spinnerElement.hidden = false;
-				} else {
-					progressElement.value = null;
-					progressElement.max = null;
-					progressElement.hidden = true;
-					if (!text) spinnerElement.hidden = true;
-				}
-				statusElement.innerHTML = text;
-			},
-			totalDependencies: 0,
-			monitorRunDependencies: (left) => {
-				this.totalDependencies = Math.max(this.totalDependencies, left);
-				Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
-			}
-		};
-		Module.setStatus('Downloading...');
-		window.onerror = () => {
-			Module.setStatus('Exception thrown, see JavaScript console');
-			spinnerElement.style.display = 'none';
-			Module.setStatus = (text) => {
-				if (text) console.error('[post-exception status] ' + text);
-			};
-		};
-	</script>
-	{{{ SCRIPT }}}
+    return canvas;
+   })(),
+   setStatus: (text) => {
+    if (!Module.setStatus.last) Module.setStatus.last = {time: Date.now(), text: ''};
+    if (text === Module.setStatus.last.text) return;
+    var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+    var now = Date.now();
+    if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+    Module.setStatus.last.time = now;
+    Module.setStatus.last.text = text;
+    if (m) {
+     text = m[1];
+     progressElement.value = parseInt(m[2]) * 100;
+     progressElement.max = parseInt(m[4]) * 100;
+     progressElement.hidden = false;
+     spinnerElement.hidden = false;
+    } else {
+     progressElement.value = null;
+     progressElement.max = null;
+     progressElement.hidden = true;
+     if (!text) spinnerElement.hidden = true;
+    }
+    statusElement.innerHTML = text;
+   },
+   totalDependencies: 0,
+   monitorRunDependencies: (left) => {
+    this.totalDependencies = Math.max(this.totalDependencies, left);
+    Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+   }
+  };
+  Module.setStatus('Downloading...');
+  window.onerror = () => {
+   Module.setStatus('Exception thrown, see JavaScript console');
+   spinnerElement.style.display = 'none';
+   Module.setStatus = (text) => {
+    if (text) console.error('[post-exception status] ' + text);
+   };
+  };
+ </script>
+ {{{ SCRIPT }}}
 </body>
 
 </html>
 
-
 File: main.zig
 ================================================
+
 const rl = @import("raylib.zig");
 const std = @import("std");
 
@@ -370,7 +371,7 @@ const Quadtree = struct {
 };
 
 // Replace the existing collision detection in handleCarCollision with the enhanced version
-fn handleCarCollision(playerCar: *Car, otherCar: rl.Vector2, otherCarSize: rl.Vector2, vulnerable: *bool, lives: *i32, carCrash: rl.Sound, pears: *std.ArrayList(Pear), rand: std.Random) !void {
+fn handleCarCollision(playerCar: *Car, otherCar: rl.Vector2, otherCarSize: rl.Vector2, vulnerable:*bool, lives: *i32, carCrash: rl.Sound, pears:*std.ArrayList(Pear), rand: std.Random) !void {
     const rec1 = rl.Rectangle{
         .x = playerCar.position.x,
         .y = playerCar.position.y,
@@ -439,9 +440,9 @@ fn updatePears(pears: *std.ArrayList(Pear), deltaTime: f32) !void {
     var i: usize = 0;
     while (i < pears.items.len) {
         var pear = &pears.items[i];
-        pear.position.x += pear.velocity.x * deltaTime;
-        pear.position.y += pear.velocity.y * deltaTime;
-        pear.velocity.y += 500 * deltaTime; // Add gravity
+        pear.position.x += pear.velocity.x* deltaTime;
+        pear.position.y += pear.velocity.y *deltaTime;
+        pear.velocity.y += 500* deltaTime; // Add gravity
         pear.lifetime -= deltaTime;
 
         if (pear.lifetime <= 0 or pear.position.y > SCREEN_HEIGHT) {
@@ -736,14 +737,14 @@ pub fn main() anyerror!void {
     }
 }
 
-
 Summary:
 Total files: 3
 Total size: 25284 bytes
 
 **Physics Engine**:
-   - Implement a basic physics engine to handle more realistic movements, such as acceleration, deceleration, and momentum.
-   - Add **gravity** and **friction** effects to make the car and other objects behave more naturally.
+
+- Implement a basic physics engine to handle more realistic movements, such as acceleration, deceleration, and momentum.
+- Add **gravity** and **friction** effects to make the car and other objects behave more naturally.
 
 Implementing a physics engine in a game like "Tiny Car Game" involves simulating realistic movements such as acceleration, deceleration, and momentum. Additionally, incorporating gravity and friction will make the car and other objects behave more naturally. Below is an optimized implementation of a physics engine in Zig, along with documentation explaining the design choices.
 

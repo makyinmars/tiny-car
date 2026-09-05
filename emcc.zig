@@ -1,115 +1,93 @@
-// raylib-zig (c) Nikolas Wipper 2020-2024
-
 const std = @import("std");
-const builtin = @import("builtin");
 
-const emccOutputDir = "zig-out" ++ std.fs.path.sep_str ++ "htmlout" ++ std.fs.path.sep_str;
-const emccOutputFile = "index.html";
-pub fn emscriptenRunStep(b: *std.Build) !*std.Build.Step.Run {
-    // If compiling on windows , use emrun.bat.
-    const emrunExe = switch (builtin.os.tag) {
-        .windows => "emrun.bat",
-        else => "emrun",
-    };
-    var emrun_run_arg = try b.allocator.alloc(u8, b.sysroot.?.len + emrunExe.len + 1);
-    defer b.allocator.free(emrun_run_arg);
+// Keep this in sync with the emsdk dependency in build.zig.zon.
+const sdk_version = "6.0.9";
 
-    if (b.sysroot == null) {
-        emrun_run_arg = try std.fmt.bufPrint(emrun_run_arg, "{s}", .{emrunExe});
-    } else {
-        emrun_run_arg = try std.fmt.bufPrint(emrun_run_arg, "{s}" ++ std.fs.path.sep_str ++ "{s}", .{ b.sysroot.?, emrunExe });
+fn sdkCommand(b: *std.Build, python: []const u8, sdk: *std.Build.Dependency, script: []const u8) *std.Build.Step.Run {
+    const run = b.addSystemCommand(&.{python});
+    run.addArg(sdk.path(script).getPath(b));
+    // An SDK sourced in the user's shell must not select another toolchain.
+    for ([_][]const u8{ "EMSDK", "EMSDK_PYTHON", "EMSDK_NODE", "EM_CACHE", "EMCC_CFLAGS", "EM_COMPILER_WRAPPER" }) |key| {
+        run.removeEnvironmentVariable(key);
     }
-
-    const run_cmd = b.addSystemCommand(&[_][]const u8{ emrun_run_arg, emccOutputDir ++ emccOutputFile });
-    return run_cmd;
+    run.setEnvironmentVariable("EM_CONFIG", sdk.path(".emscripten").getPath(b));
+    return run;
 }
 
-// Creates the static library to build a project for Emscripten.
-pub fn compileForEmscripten(
-    b: *std.Build,
-    name: []const u8,
-    root_source_file: []const u8,
-    target: std.Build.ResolvedTarget,
-    optimize: std.builtin.Mode,
-) *std.Build.Step.Compile {
-    // TODO: It might be a good idea to create a custom compile step, that does
-    // both the compile to static library and the link with emcc by overidding
-    // the make function of the step. However it might also be a bad idea since
-    // it messes with the build system itself.
-
-    // The project is built as a library and linked later.
-    return b.addStaticLibrary(.{
-        .name = name,
-        .root_source_file = b.path(root_source_file),
-        .target = target,
-        .optimize = optimize,
-    });
+fn optimizeFlag(optimize: std.builtin.OptimizeMode) []const u8 {
+    return switch (optimize) {
+        .Debug => "-O0",
+        .ReleaseSafe, .ReleaseFast => "-O3",
+        .ReleaseSmall => "-Oz",
+    };
 }
 
-// Links a set of items together using emscripten.
-//
-// Will accept objects and static libraries as items to link. As for files to
-// include, it is recomended to have a single resources directory and just pass
-// the entire directory instead of passing every file individually. The entire
-// path given will be the path to read the file within the program. So, if
-// "resources/image.png" is passed, your program will use "resources/image.png"
-// as the path to load the file.
-//
-// TODO: Test if shared libraries are accepted, I don't remember if emcc can
-//       link a shared library with a project or not.
-// TODO: Add a parameter that allows a custom output directory.
-pub fn linkWithEmscripten(
+pub fn build(
     b: *std.Build,
-    itemsToLink: []const *std.Build.Step.Compile,
-) !*std.Build.Step.Run {
-    const emccExe = switch (builtin.os.tag) {
-        .windows => "emcc.bat",
-        else => "emcc",
-    };
-    var emcc_run_arg = try b.allocator.alloc(u8, b.sysroot.?.len + emccExe.len + 1);
-    defer b.allocator.free(emcc_run_arg);
+    wasm: *std.Build.Step.Compile,
+    raylib: *std.Build.Dependency,
+    optimize: std.builtin.OptimizeMode,
+    raylib_optimize: std.builtin.OptimizeMode,
+) void {
+    const sdk = b.dependency("emsdk", .{});
+    const python = b.option([]const u8, "python", "Python 3.10+ executable for Emscripten") orelse
+        (b.findProgram(&.{ "python3.14", "python3.13", "python3.12", "python3.11", "python3.10", "python3" }, &.{}) catch
+            @panic("Emscripten requires Python 3.10+; pass -Dpython=/path/to/python"));
 
-    if (b.sysroot == null) {
-        emcc_run_arg = try std.fmt.bufPrint(emcc_run_arg, "{s}", .{emccExe});
-    } else {
-        emcc_run_arg = try std.fmt.bufPrint(
-            emcc_run_arg,
-            "{s}" ++ std.fs.path.sep_str ++ "{s}",
-            .{ b.sysroot.?, emccExe },
-        );
-    }
+    const install_sdk = sdkCommand(b, python, sdk, "emsdk.py");
+    install_sdk.addArgs(&.{ "install", sdk_version });
+    const activate_sdk = sdkCommand(b, python, sdk, "emsdk.py");
+    activate_sdk.addArgs(&.{ "activate", sdk_version });
+    activate_sdk.step.dependOn(&install_sdk.step);
 
-    // Create the output directory because emcc can't do it.
-    const mkdir_command = b.addSystemCommand(&[_][]const u8{ "mkdir", "-p", emccOutputDir });
-
-    // Actually link everything together.
-    const emcc_command = b.addSystemCommand(&[_][]const u8{emcc_run_arg});
-
-    for (itemsToLink) |item| {
-        emcc_command.addFileArg(item.getEmittedBin());
-        emcc_command.step.dependOn(&item.step);
-    }
-    // This puts the file in zig-out/htmlout/index.html.
-    emcc_command.step.dependOn(&mkdir_command.step);
-    emcc_command.addArgs(&[_][]const u8{
-        "-o",
-        emccOutputDir ++ emccOutputFile,
-        "-sFULL-ES3=1",
+    const emcc = sdkCommand(b, python, sdk, "upstream/emscripten/emcc.py");
+    emcc.step.dependOn(&activate_sdk.step);
+    emcc.addArgs(&.{
+        optimizeFlag(raylib_optimize),
+        "-DPLATFORM_WEB",
+        "-DGRAPHICS_API_OPENGL_ES2",
+        "-DSUPPORT_MODULE_RAUDIO=1",
+        "-DSUPPORT_MODULE_RMODELS=0",
         "-sUSE_GLFW=3",
-        "-sASYNCIFY",
-        "-sUSE_OFFSET_CONVERTER",
-        "-O3",
-        "--emrun",
+        "-sASYNCIFY=1",
+        "-sALLOW_MEMORY_GROWTH=1",
+        "-sINITIAL_MEMORY=134217728",
+        "-sMAXIMUM_MEMORY=268435456",
+        "-sSTACK_SIZE=1048576",
+        "-sEXPORTED_RUNTIME_METHODS=['ccall','requestFullscreen']",
+        "-sEXPORTED_FUNCTIONS=['_main','_malloc','_free','_tiny_menu','_tiny_start','_tiny_input','_tiny_pause','_tiny_resume','_tiny_volume','_tiny_metric','_tiny_ghost']",
     });
-    return emcc_command;
-}
-
-// TODO: See if zig's standard library already has somehing like this.
-fn lastIndexOf(string: []const u8, character: u8) usize {
-    // Interestingly, Zig has no nice way of iterating a slice backwards.
-    for (0..string.len) |i| {
-        const index = string.len - i - 1;
-        if (string[index] == character) return index;
+    if (optimize == .Debug or optimize == .ReleaseSafe) {
+        emcc.addArgs(&.{ "-sASSERTIONS=1", "-sSTACK_OVERFLOW_CHECK=2" });
     }
-    return string.len - 1;
+    if (optimize == .Debug) emcc.addArg("-g");
+    emcc.addArg("-I");
+    emcc.addDirectoryArg(raylib.path("src"));
+    for ([_][]const u8{ "rcore.c", "rshapes.c", "rtextures.c", "rtext.c", "raudio.c" }) |source| {
+        emcc.addFileArg(raylib.path(b.fmt("src/{s}", .{source})));
+    }
+    emcc.addArtifactArg(wasm);
+    emcc.addArg("--shell-file");
+    emcc.addFileArg(b.path("src/shell.html"));
+    emcc.addArg("--preload-file");
+    emcc.addDecoratedDirectoryArg("", b.path("resources"), "@resources");
+    emcc.addArg("-o");
+    const html = emcc.addOutputFileArg("index.html");
+    const install_web = b.addInstallDirectory(.{
+        .source_dir = html.dirname(),
+        .install_dir = .{ .custom = "web" },
+        .install_subdir = "",
+    });
+    b.getInstallStep().dependOn(&install_web.step);
+    const install_ui = b.addInstallDirectory(.{
+        .source_dir = b.path("web"),
+        .install_dir = .{ .custom = "web" },
+        .install_subdir = "",
+    });
+    b.getInstallStep().dependOn(&install_ui.step);
+
+    const emrun = sdkCommand(b, python, sdk, "upstream/emscripten/emrun.py");
+    emrun.addArg(b.getInstallPath(.{ .custom = "web" }, "index.html"));
+    emrun.step.dependOn(b.getInstallStep());
+    b.step("emrun", "Build and run in the browser").dependOn(&emrun.step);
 }
