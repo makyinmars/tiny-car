@@ -1,8 +1,9 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 
-export const VERSION = "score-attack-v3";
+export const VERSION = "score-attack-v5";
 export const TICKS = 5400;
-// 66 - min(floor(tick / 160), 33) ticks between input-independent attempts.
+// Ordinary traffic: 66 - min(floor(tick / 160), 33) ticks between attempts.
+// Quiet periods/reservations may skip spawns; open-wheel cars never award points.
 export const MAX_SPAWNS = 113;
 const id = () => randomBytes(16).toString("hex");
 const fail = (status, message) => {

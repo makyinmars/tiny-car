@@ -2,10 +2,12 @@ const rl = @import("raylib");
 const std = @import("std");
 const builtin = @import("builtin");
 const rendering = @import("render.zig");
+const camera = @import("camera.zig");
 
 test {
     _ = @import("grass.zig");
     _ = @import("race.zig");
+    _ = @import("camera.zig");
 }
 
 // Compile-time check for WebAssembly target
@@ -48,14 +50,33 @@ var volume: f32 = 0.35;
 var ghost_x: f32 = -100;
 var ghost_y: f32 = -100;
 var ghost_heading: f32 = 0;
+var ghost_distance: f32 = 0;
+var view: camera.Camera = .{};
+
+export fn tiny_zoom(value: f32) void {
+    view.setZoom(value);
+}
+export fn tiny_camera_metric(key: u32) f64 {
+    return switch (key) {
+        0 => view.zoom,
+        1 => view.requested,
+        2 => view.heading,
+        3 => view.target.x,
+        4 => view.target.y,
+        else => 0,
+    };
+}
 
 export fn tiny_menu() void {
-    race = .{};
+    race = simulation.Race.start(1);
+    race.state = .ready;
+    view.initialized = false;
     clock = .{};
     web_input = 0;
 }
 export fn tiny_start(seed: u32) void {
     race = simulation.Race.start(seed);
+    view.initialized = false;
     clock = .{};
     web_input = 0;
 }
@@ -73,36 +94,15 @@ export fn tiny_resume() void {
 export fn tiny_volume(value: f32) void {
     volume = std.math.clamp(value, 0, 1);
 }
-export fn tiny_ghost(x: f32, y: f32, heading: f32) void {
-    const valid = std.math.isFinite(x) and std.math.isFinite(y) and std.math.isFinite(heading);
+export fn tiny_ghost(x: f32, y: f32, heading: f32, distance: f32) void {
+    const valid = std.math.isFinite(x) and std.math.isFinite(y) and std.math.isFinite(heading) and std.math.isFinite(distance) and distance >= 0 and distance <= 40500;
     ghost_x = if (valid) x else -100;
     ghost_y = if (valid) y else -100;
     ghost_heading = if (valid) std.math.clamp(heading, -simulation.road.max_heading, simulation.road.max_heading) else 0;
+    ghost_distance = if (valid) distance else 0;
 }
 export fn tiny_metric(key: u32) f64 {
-    return switch (key) {
-        0 => @floatFromInt(@intFromEnum(race.state)),
-        1 => @floatFromInt(race.score),
-        2 => @floatFromInt(race.ticks),
-        3 => @floatFromInt(race.multiplier()),
-        4 => race.speed,
-        5 => @floatFromInt(race.overtakes),
-        6 => @floatFromInt(race.near_misses),
-        7 => @floatFromInt(race.crashes),
-        8 => @floatFromInt(race.base_points),
-        9 => @floatFromInt(race.near_points),
-        10 => @floatFromInt(race.speed_points),
-        11 => @floatFromInt(race.clean_points),
-        12 => @floatFromInt(race.best_streak),
-        13 => @floatFromInt(race.seed),
-        14 => race.x,
-        15 => race.y,
-        16 => @floatFromInt(race.countdown),
-        17 => simulation.version,
-        18 => race.heading,
-        19 => race.lateral_velocity,
-        else => 0,
-    };
+    return race.metric(key);
 }
 
 fn centered(text: [:0]const u8, y: i32, size: i32, color: rl.Color) void {
@@ -120,6 +120,7 @@ pub fn main() if (is_wasm) u8 else anyerror!void {
 }
 
 fn runGame() !void {
+    tiny_menu();
     // Packaged desktop launchers may start outside the project root.
     if (!is_wasm and !rl.directoryExists("resources")) _ = rl.changeDirectory(rl.getApplicationDirectory());
     rl.initWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Tiny Car / Score Attack");
@@ -133,10 +134,16 @@ fn runGame() !void {
     const music: ?rl.Music = if (rl.isAudioDeviceReady()) rl.loadMusicStream("resources/sound/engine.wav") catch null else null;
     const crash_sound: ?rl.Sound = if (rl.isAudioDeviceReady()) rl.loadSound("resources/sound/car-crash.mp3") catch null else null;
     const brake_sound: ?rl.Sound = if (rl.isAudioDeviceReady()) rl.loadSound("resources/sound/brake.mp3") catch null else null;
+    const fast_music: ?rl.Music = if (rl.isAudioDeviceReady()) rl.loadMusicStream("resources/sound/open-wheel.wav") catch null else null;
+    const pedestrian_alert: ?rl.Sound = if (rl.isAudioDeviceReady()) rl.loadSound("resources/sound/pedestrian-alert.wav") catch null else null;
+    const fast_alert: ?rl.Sound = if (rl.isAudioDeviceReady()) rl.loadSound("resources/sound/fast-alert.wav") catch null else null;
+    const whoops: ?rl.Sound = if (rl.isAudioDeviceReady()) rl.loadSound("resources/sound/whoops.wav") catch null else null;
     defer {
         if (music) |m| rl.unloadMusicStream(m);
         if (crash_sound) |sound| rl.unloadSound(sound);
         if (brake_sound) |sound| rl.unloadSound(sound);
+        if (fast_music) |m| rl.unloadMusicStream(m);
+        for ([_]?rl.Sound{ pedestrian_alert, fast_alert, whoops }) |sound| if (sound) |s| rl.unloadSound(s);
     }
     if (music) |m| {
         rl.setMusicVolume(m, 0.35);
@@ -144,8 +151,14 @@ fn runGame() !void {
     }
     if (crash_sound) |sound| rl.setSoundVolume(sound, 0.5);
     if (brake_sound) |sound| rl.setSoundVolume(sound, 0.25);
+    if (fast_music) |m| rl.playMusicStream(m);
+    for ([_]?rl.Sound{ pedestrian_alert, fast_alert, whoops }) |sound| if (sound) |s| rl.setSoundVolume(s, 0.45);
     var previous_crashes: u32 = 0;
+    var previous_pedestrians: u32 = 0;
+    var previous_fast: u32 = 0;
+    var previous_contacts: u32 = 0;
     var braking = false;
+    var reported_finish = false;
     var engine_pitch: f32 = 0.8;
     const cream = rl.Color{ .r = 240, .g = 234, .b = 220, .a = 255 };
     const sage = rl.Color{ .r = 185, .g = 211, .b = 147, .a = 255 };
@@ -169,6 +182,9 @@ fn runGame() !void {
                         tiny_pause();
                     },
                     .m => volume = if (volume > 0) 0 else 0.35,
+                    .minus, .kp_subtract => tiny_zoom(view.requested - 0.05),
+                    .equal, .kp_add => tiny_zoom(view.requested + 0.05),
+                    .zero, .kp_0 => tiny_zoom(camera.default_zoom),
                     .left, .a => tapped.left = true,
                     .right, .d => tapped.right = true,
                     .up, .w => tapped.accelerate = true,
@@ -177,6 +193,14 @@ fn runGame() !void {
                 }
             }
             if (!rl.isWindowFocused()) tiny_pause();
+            const wheel = rl.getMouseWheelMove();
+            if (wheel != 0) tiny_zoom(view.requested + wheel * 0.04);
+            if (rl.isMouseButtonPressed(.left)) {
+                const mouse = rl.getMousePosition();
+                if (mouse.y >= 568 and mouse.y <= 622 and mouse.x >= 18 and mouse.x <= 196) {
+                    tiny_zoom(if (mouse.x < 65) view.requested - 0.05 else if (mouse.x > 147) view.requested + 0.05 else camera.default_zoom);
+                }
+            }
         }
         const input: simulation.Input = if (is_wasm) @bitCast(web_input) else .{
             .left = tapped.left or rl.isKeyDown(.left) or rl.isKeyDown(.a),
@@ -185,6 +209,15 @@ fn runGame() !void {
             .brake = tapped.brake or rl.isKeyDown(.down) or rl.isKeyDown(.s),
         };
         clock.advance(&race, rl.getFrameTime(), input);
+        if (!is_wasm) {
+            if (race.state != .finished) reported_finish = false;
+            if (race.state == .finished and !reported_finish) {
+                std.debug.print("TINY_RECEIPT {{\"version\":{d},\"metrics\":[", .{simulation.version});
+                for (0..43) |key| std.debug.print("{s}{d}", .{ if (key == 0) "" else ",", race.metric(@intCast(key)) });
+                std.debug.print("]}}\n", .{});
+                reported_finish = true;
+            }
+        }
         const running = race.state == .playing;
         rl.setMasterVolume(volume);
         if (music) |m| {
@@ -195,20 +228,48 @@ fn runGame() !void {
             rl.updateMusicStream(m);
             if (running) rl.resumeMusicStream(m) else rl.pauseMusicStream(m);
         }
+        if (fast_music) |m| {
+            var loudness: f32 = 0;
+            var pitch: f32 = 1;
+            for (race.traffic) |car| if (car.active and car.fast) {
+                const distance = @abs(car.y - race.y);
+                const proximity = std.math.clamp(1 - distance / 1300, 0, 1);
+                loudness = proximity * proximity * 0.32;
+                pitch = 0.7 + car.speed / 1200 * 0.6 + (if (car.y > race.y) @as(f32, 0.12) else -0.08);
+            };
+            rl.setMusicVolume(m, if (running) loudness else 0);
+            rl.setMusicPitch(m, pitch);
+            rl.updateMusicStream(m);
+            if (running) rl.resumeMusicStream(m) else rl.pauseMusicStream(m);
+        }
+        if (running and race.pedestrian_spawns > previous_pedestrians) {
+            if (pedestrian_alert) |sound| rl.playSound(sound);
+        }
+        if (running and race.fast_spawns > previous_fast) {
+            if (fast_alert) |sound| rl.playSound(sound);
+        }
         if (race.crashes > previous_crashes) {
-            if (crash_sound) |sound| rl.playSound(sound);
+            if (race.pedestrian_contacts > previous_contacts) {
+                if (whoops) |sound| rl.playSound(sound);
+            } else if (crash_sound) |sound| rl.playSound(sound);
         }
         previous_crashes = race.crashes;
+        previous_pedestrians = race.pedestrian_spawns;
+        previous_fast = race.fast_spawns;
+        previous_contacts = race.pedestrian_contacts;
         if (!running) {
             if (crash_sound) |sound| rl.stopSound(sound);
             if (brake_sound) |sound| rl.stopSound(sound);
+            for ([_]?rl.Sound{ pedestrian_alert, fast_alert, whoops }) |sound| if (sound) |s| rl.stopSound(s);
         }
         if (running and input.brake and !braking and race.speed > 50) {
             if (brake_sound) |sound| rl.playSound(sound);
         }
         braking = input.brake;
         rl.beginDrawing();
-        renderer.draw(&race, .{ .x = ghost_x, .y = ghost_y, .heading = ghost_heading });
+        renderer.view = view;
+        renderer.draw(&race, .{ .x = ghost_x, .y = ghost_y, .heading = ghost_heading, .distance = ghost_distance });
+        view = renderer.view;
         var buf: [96]u8 = undefined;
         if (race.state == .countdown) {
             rl.drawRectangle(240, 240, 320, 160, .{ .r = 20, .g = 33, .b = 29, .a = 200 });
@@ -223,7 +284,8 @@ fn runGame() !void {
             if (race.state == .finished) centered(final_text, 315, 20, sage);
             centered(if (race.state == .paused) "SPACE / ESC TO RESUME" else "SPACE TO RACE / ARROWS OR WASD TO DRIVE", 370, 18, cream);
             centered("UP: GAS   DOWN: BRAKE   M: SOUND", 407, 14, sage);
-            centered("Steer gently. Watch turn signals. Keep a clean streak.", 438, 14, cream);
+            centered("Amber: roadside dash. Cyan: fast car behind. Watch signals.", 438, 14, cream);
+            centered("BRAKE BEFORE CORNERS / ZOOM: - + / RESET: 0 / MOUSE WHEEL", 471, 13, sage);
         }
         rl.endDrawing();
     }

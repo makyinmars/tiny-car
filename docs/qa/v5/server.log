@@ -1,0 +1,2 @@
+$ node server/local.mjs
+Tiny Car + score API: http://127.0.0.1:8081

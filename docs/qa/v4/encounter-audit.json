@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-05",
+  "version": "score-attack-v4",
+  "seedRange": [
+    1,
+    64
+  ],
+  "shoulderRuns": 128,
+  "respondingRuns": 128,
+  "pedestrianEntries": 353,
+  "outerLaneEntries": 41,
+  "entriesWithActiveFastCar": 66,
+  "shoulderContacts": 310,
+  "leftContacts": 154,
+  "rightContacts": 156,
+  "runsWithAtLeastTwoContacts": 113,
+  "respondingDriverContacts": 0,
+  "fastSpawns": 435,
+  "fastOvertakesOfOrdinaryCars": 669,
+  "peakVisibleFastSpeedPixelsPerSecond": 1200,
+  "minimumWarningTicks": 150,
+  "minimumVisiblePreparationTicks": 24,
+  "minimumClearEscapeTicks": 60,
+  "ordinarySpawnAttemptsPerRun": 113,
+  "fixedHz": 60,
+  "durationTicks": 5400
+}

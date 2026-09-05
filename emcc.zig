@@ -55,7 +55,7 @@ pub fn build(
         "-sMAXIMUM_MEMORY=268435456",
         "-sSTACK_SIZE=1048576",
         "-sEXPORTED_RUNTIME_METHODS=['ccall','requestFullscreen']",
-        "-sEXPORTED_FUNCTIONS=['_main','_malloc','_free','_tiny_menu','_tiny_start','_tiny_input','_tiny_pause','_tiny_resume','_tiny_volume','_tiny_metric','_tiny_ghost']",
+        "-sEXPORTED_FUNCTIONS=['_main','_malloc','_free','_tiny_menu','_tiny_start','_tiny_input','_tiny_pause','_tiny_resume','_tiny_volume','_tiny_metric','_tiny_ghost','_tiny_zoom','_tiny_camera_metric']",
     });
     if (optimize == .Debug or optimize == .ReleaseSafe) {
         emcc.addArgs(&.{ "-sASSERTIONS=1", "-sSTACK_OVERFLOW_CHECK=2" });

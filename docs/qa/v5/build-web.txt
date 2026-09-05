@@ -1,0 +1,102 @@
+$ zig build -Dtarget=wasm32-emscripten -Doptimize=ReleaseSafe && node scripts/configure-web.mjs
+Resolving SDK version '6.0.9' to 'sdk-releases-f04ea239d533260dd1db760dd2d668d5f9a88d6b-64bit'
+Installing SDK 'sdk-releases-f04ea239d533260dd1db760dd2d668d5f9a88d6b-64bit'..
+Skipped installing node-24.19.0-64bit, already installed.
+Skipped installing python-3.13.3-64bit, already installed.
+Skipped installing releases-f04ea239d533260dd1db760dd2d668d5f9a88d6b-64bit, already installed.
+All SDK components already installed: 'sdk-releases-f04ea239d533260dd1db760dd2d668d5f9a88d6b-64bit'.
+Resolving SDK version '6.0.9' to 'sdk-releases-f04ea239d533260dd1db760dd2d668d5f9a88d6b-64bit'
+Setting the following tools as active:
+   node-24.19.0-64bit
+   python-3.13.3-64bit
+   releases-f04ea239d533260dd1db760dd2d668d5f9a88d6b-64bit
+
+Next steps:
+- To conveniently access emsdk tools from the command line,
+  consider adding the following directories to your PATH:
+    /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E
+    /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten
+- This can be done for the current shell by running:
+    source "/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/emsdk_env.sh"
+- Configure emsdk in your shell startup scripts by running:
+    echo 'source "/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/emsdk_env.sh"' >> $HOME/.zprofile
+install
++- install generated/
+   +- run /opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14 (index.html) w
+In file included from /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c:176:
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/external/miniaudio.h:41498:6: warning: macro '__EMSCRIPTEN_major__' has been marked as deprecated: Use __EMSCRIPTEN_MAJOR__ instead [-Wdeprecated-pragma]
+ 41498 | #if (__EMSCRIPTEN_major__ > 3) || (__EMSCRIPTEN_major__ == 3 && (__EMSCRIPTEN_minor__ > 1 || (__EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 32)))
+       |      ^
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten/cache/sysroot/include/emscripten/version.h:10:82: note: macro marked 'deprecated' here
+   10 | #pragma clang deprecated(__EMSCRIPTEN_major__, "Use __EMSCRIPTEN_MAJOR__ instead")
+      |                                                                                  ^
+In file included from /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c:176:
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/external/miniaudio.h:41498:36: warning: macro '__EMSCRIPTEN_major__' has been marked as deprecated: Use __EMSCRIPTEN_MAJOR__ instead [-Wdeprecated-pragma]
+ 41498 | #if (__EMSCRIPTEN_major__ > 3) || (__EMSCRIPTEN_major__ == 3 && (__EMSCRIPTEN_minor__ > 1 || (__EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 32)))
+       |                                    ^
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten/cache/sysroot/include/emscripten/version.h:10:82: note: macro marked 'deprecated' here
+   10 | #pragma clang deprecated(__EMSCRIPTEN_major__, "Use __EMSCRIPTEN_MAJOR__ instead")
+      |                                                                                  ^
+In file included from /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c:176:
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/external/miniaudio.h:41498:66: warning: macro '__EMSCRIPTEN_minor__' has been marked as deprecated: Use __EMSCRIPTEN_MINOR__ instead [-Wdeprecated-pragma]
+ 41498 | #if (__EMSCRIPTEN_major__ > 3) || (__EMSCRIPTEN_major__ == 3 && (__EMSCRIPTEN_minor__ > 1 || (__EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 32)))
+       |                                                                  ^
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten/cache/sysroot/include/emscripten/version.h:11:82: note: macro marked 'deprecated' here
+   11 | #pragma clang deprecated(__EMSCRIPTEN_minor__, "Use __EMSCRIPTEN_MINOR__ instead")
+      |                                                                                  ^
+In file included from /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c:176:
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/external/miniaudio.h:41498:95: warning: macro '__EMSCRIPTEN_minor__' has been marked as deprecated: Use __EMSCRIPTEN_MINOR__ instead [-Wdeprecated-pragma]
+ 41498 | #if (__EMSCRIPTEN_major__ > 3) || (__EMSCRIPTEN_major__ == 3 && (__EMSCRIPTEN_minor__ > 1 || (__EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 32)))
+       |                                                                                               ^
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten/cache/sysroot/include/emscripten/version.h:11:82: note: macro marked 'deprecated' here
+   11 | #pragma clang deprecated(__EMSCRIPTEN_minor__, "Use __EMSCRIPTEN_MINOR__ instead")
+      |                                                                                  ^
+In file included from /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c:176:
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/external/miniaudio.h:41498:124: warning: macro '__EMSCRIPTEN_tiny__' has been marked as deprecated: Use __EMSCRIPTEN_TINY__ instead [-Wdeprecated-pragma]
+ 41498 | #if (__EMSCRIPTEN_major__ > 3) || (__EMSCRIPTEN_major__ == 3 && (__EMSCRIPTEN_minor__ > 1 || (__EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 32)))
+       |                                                                                                                            ^
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten/cache/sysroot/include/emscripten/version.h:12:80: note: macro marked 'deprecated' here
+   12 | #pragma clang deprecated(__EMSCRIPTEN_tiny__, "Use __EMSCRIPTEN_TINY__ instead")
+      |                                                                                ^
+In file included from /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c:176:
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/external/miniaudio.h:41502:10: warning: macro '__EMSCRIPTEN_major__' has been marked as deprecated: Use __EMSCRIPTEN_MAJOR__ instead [-Wdeprecated-pragma]
+ 41502 |     #if (__EMSCRIPTEN_major__ > 3) || (__EMSCRIPTEN_major__ == 3 && (__EMSCRIPTEN_minor__ > 1 || (__EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 70)))
+       |          ^
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten/cache/sysroot/include/emscripten/version.h:10:82: note: macro marked 'deprecated' here
+   10 | #pragma clang deprecated(__EMSCRIPTEN_major__, "Use __EMSCRIPTEN_MAJOR__ instead")
+      |                                                                                  ^
+In file included from /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c:176:
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/external/miniaudio.h:41502:40: warning: macro '__EMSCRIPTEN_major__' has been marked as deprecated: Use __EMSCRIPTEN_MAJOR__ instead [-Wdeprecated-pragma]
+ 41502 |     #if (__EMSCRIPTEN_major__ > 3) || (__EMSCRIPTEN_major__ == 3 && (__EMSCRIPTEN_minor__ > 1 || (__EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 70)))
+       |                                        ^
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten/cache/sysroot/include/emscripten/version.h:10:82: note: macro marked 'deprecated' here
+   10 | #pragma clang deprecated(__EMSCRIPTEN_major__, "Use __EMSCRIPTEN_MAJOR__ instead")
+      |                                                                                  ^
+In file included from /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c:176:
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/external/miniaudio.h:41502:70: warning: macro '__EMSCRIPTEN_minor__' has been marked as deprecated: Use __EMSCRIPTEN_MINOR__ instead [-Wdeprecated-pragma]
+ 41502 |     #if (__EMSCRIPTEN_major__ > 3) || (__EMSCRIPTEN_major__ == 3 && (__EMSCRIPTEN_minor__ > 1 || (__EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 70)))
+       |                                                                      ^
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten/cache/sysroot/include/emscripten/version.h:11:82: note: macro marked 'deprecated' here
+   11 | #pragma clang deprecated(__EMSCRIPTEN_minor__, "Use __EMSCRIPTEN_MINOR__ instead")
+      |                                                                                  ^
+In file included from /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c:176:
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/external/miniaudio.h:41502:99: warning: macro '__EMSCRIPTEN_minor__' has been marked as deprecated: Use __EMSCRIPTEN_MINOR__ instead [-Wdeprecated-pragma]
+ 41502 |     #if (__EMSCRIPTEN_major__ > 3) || (__EMSCRIPTEN_major__ == 3 && (__EMSCRIPTEN_minor__ > 1 || (__EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 70)))
+       |                                                                                                   ^
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten/cache/sysroot/include/emscripten/version.h:11:82: note: macro marked 'deprecated' here
+   11 | #pragma clang deprecated(__EMSCRIPTEN_minor__, "Use __EMSCRIPTEN_MINOR__ instead")
+      |                                                                                  ^
+In file included from /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c:176:
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/external/miniaudio.h:41502:128: warning: macro '__EMSCRIPTEN_tiny__' has been marked as deprecated: Use __EMSCRIPTEN_TINY__ instead [-Wdeprecated-pragma]
+ 41502 |     #if (__EMSCRIPTEN_major__ > 3) || (__EMSCRIPTEN_major__ == 3 && (__EMSCRIPTEN_minor__ > 1 || (__EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 70)))
+       |                                                                                                                                ^
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten/cache/sysroot/include/emscripten/version.h:12:80: note: macro marked 'deprecated' here
+   12 | #pragma clang deprecated(__EMSCRIPTEN_tiny__, "Use __EMSCRIPTEN_TINY__ instead")
+      |                                                                                ^
+In file included from /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c:214:
+/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/external/stb_vorbis.c:1404:75: warning: pointer comparison always evaluates to false [-Wtautological-compare]
+ 1404 |       if (f->stream_start + loc >= f->stream_end || f->stream_start + loc < f->stream_start) {
+      |                                                                           ^
+11 warnings generated.
+failed command: EM_CONFIG=/Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/.emscripten /opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14 /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/N-V-__8AAALyCQBi5THEMtoWe-Qftue-pKv202vdHdAvjT5E/upstream/emscripten/emcc.py -O3 -DPLATFORM_WEB -DGRAPHICS_API_OPENGL_ES2 -DSUPPORT_MODULE_RAUDIO=1 -DSUPPORT_MODULE_RMODELS=0 -sUSE_GLFW=3 -sASYNCIFY=1 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=134217728 -sMAXIMUM_MEMORY=268435456 -sSTACK_SIZE=1048576 "-sEXPORTED_RUNTIME_METHODS=['ccall','requestFullscreen']" "-sEXPORTED_FUNCTIONS=['_main','_malloc','_free','_tiny_menu','_tiny_start','_tiny_input','_tiny_pause','_tiny_resume','_tiny_volume','_tiny_metric','_tiny_ghost','_tiny_zoom','_tiny_camera_metric']" -sASSERTIONS=1 -sSTACK_OVERFLOW_CHECK=2 -I /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/rcore.c /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/rshapes.c /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/rtextures.c /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/rtext.c /Users/franklin/Development/Programming/Zig/tiny_car/zig-pkg/raylib-6.0.0-whq8uCSwLgWWeF3ec3dbG6Rr36SLFL-s2WJ1Q_2E22Bb/src/raudio.c ./.zig-cache/o/d5e78b0500443278e1e23ecab8222100/libtiny_car.a --shell-file /Users/franklin/Development/Programming/Zig/tiny_car/src/shell.html --preload-file /Users/franklin/Development/Programming/Zig/tiny_car/resources@resources -o /Users/franklin/Development/Programming/Zig/tiny_car/.zig-cache/o/21caeaee74f7923a1207347d23df62f3/index.html
+

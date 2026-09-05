@@ -1,0 +1,86 @@
+{
+  "version": "score-attack-v5",
+  "nativeBuild": {
+    "command": "zig build",
+    "exitCode": 0,
+    "platform": "macOS arm64"
+  },
+  "webBuild": {
+    "command": "bun run build:web",
+    "exitCode": 0,
+    "optimization": "ReleaseSafe"
+  },
+  "simulation": {
+    "command": "zig build test",
+    "exitCode": 0,
+    "tests": 39
+  },
+  "browserAndApi": {
+    "command": "bun run test",
+    "exitCode": 0,
+    "tests": 24
+  },
+  "lint": {
+    "command": "bun run lint",
+    "exitCode": 0
+  },
+  "format": {
+    "commands": [
+      "bun run format:check",
+      "zig fmt --check src/*.zig build.zig emcc.zig",
+      "git diff --check"
+    ],
+    "exitCodes": [
+      0,
+      0,
+      0
+    ]
+  },
+  "cacheNote": "Zig commands use ZIG_GLOBAL_CACHE_DIR=.zig-cache/global because the shared global cache is outside the writable sandbox.",
+  "localApi": {
+    "url": "http://localhost:8081/api/health",
+    "response": {
+      "ok": true,
+      "version": "score-attack-v5"
+    }
+  },
+  "phone": {
+    "viewport": [
+      390,
+      844
+    ],
+    "horizontalOverflow": false,
+    "drivingButtonHeight": 48,
+    "zoomButtonHeight": 44,
+    "cornerCueFontSize": 13,
+    "statusFontSize": 17
+  },
+  "runtimeEvidence": [
+    "native-complete.png",
+    "replay-parity.json",
+    "web-zoom-replay.json",
+    "phone-cruise.json",
+    "phone-pointer-capture.json",
+    "phone-pause.json",
+    "camera-transitions.json"
+  ],
+  "cameraTransitionFrames": 180,
+  "cameraTransitionsMonotone": true,
+  "cameraTransitionSimulationMetricsUnchanged": 43,
+  "baseline": "Before images are the archived v4 runtime captures from docs/qa/v4, matching the straight-road implementation present at the start.",
+  "sourceSha256": {
+    "src/race.zig": "f73ed6f68ebe5e64712bada8c0a3921330c4af54b0313324bae970ac14c14aaf",
+    "src/route.zig": "58e409575773b7698a0faf98c0b414f05a5e67e74cdcb5f416fb995d718cc790",
+    "src/road.zig": "ef15b0e38cf4aaa818677a307a9f956dd17af532f68fd49ab9758f73e86fa554",
+    "src/camera.zig": "7460c1e4e27932fffa57b5987a1fc25f5fdc6b51d4e7d21db4db5bd470acb52f",
+    "src/render.zig": "1bda73c0bb0f51800379ba736f2b5896f52a8b4e35fb8fd683ead4220c81b11a",
+    "src/main.zig": "eec408cba9f93afd4adbd7594c6102d97796af2c0e07950f52edb01307f04f30",
+    "web/app.js": "13cab0be0a2f1ee8d3d6c79a000a4b9cbd771188a18b5b5ee6b331371a66f22f",
+    "web/app.css": "0969370fd188753a808307c9763775dbc266924cf6f7c62cec1c7374546c2f26",
+    "src/shell.html": "3b3786f95fcd0746ed09cf32a195682b920482a430350aa3d7a4795cf1e1c564",
+    "server/service.mjs": "c84b65a5f4126dc9e72e462625bda39668237d54b5ee1fc5e7d13aac44d68c69",
+    "emcc.zig": "f4b445f43f1fe139dd5b1cf634c33616b98e36efb8015080f7c689149d750020"
+  },
+  "recoveryHud": "Recovery status shares the score header; route preview and both encounter cards remain separate.",
+  "upstreamBuildWarnings": "Emscripten emits 11 warnings from vendored miniaudio/stb_vorbis headers; the build exits successfully."
+}

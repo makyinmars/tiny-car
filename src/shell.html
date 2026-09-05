@@ -39,7 +39,7 @@
           ><span>TINY CAR<small>THE FRIENDLY RIVALRY CLUB</small></span></a
         >
         <div class="header-actions">
-          <span class="version-tag">VOL. 03 / SCORE ATTACK</span
+          <span class="version-tag">VOL. 05 / SCORE ATTACK</span
           ><button id="helpButton" class="quiet">
             How to play <span aria-hidden="true">↗</span>
           </button>
@@ -68,8 +68,26 @@
             <div class="track-header">
               <span
                 ><span class="route-icon" aria-hidden="true">↟</span>
-                <strong id="trackName">The open road</strong></span
+                <strong id="trackName">The forest circuit</strong></span
               ><span id="runMode" class="small-label">SOLO PRACTICE</span>
+            </div>
+            <div class="encounter-strip" role="status" aria-live="polite" aria-atomic="true">
+              <p id="roadMood">Watch the signals. Keep it clean.</p>
+              <p id="pedestrianWarning" class="crossing-warning" hidden>
+                <span class="warning-symbol" aria-hidden="true">!</span>
+                <span id="pedestrianWarningText"></span>
+              </p>
+              <p id="fastWarning" class="fast-warning" hidden>
+                <span class="warning-symbol" aria-hidden="true">↑</span>
+                <span id="fastWarningText"></span>
+              </p>
+            </div>
+            <p id="routeCue" class="route-cue">Sweeping bends ahead · brake before the corner</p>
+            <div class="mobile-hud" role="group" aria-label="Race status">
+              <span><strong id="mobileScore">0</strong><small>points</small></span>
+              <span><strong id="mobileTime">90</strong><small>seconds left</small></span>
+              <span><strong id="mobileSpeed">30</strong><small>mph</small></span>
+              <span><strong id="mobileClean">1×</strong><small>clean</small></span>
             </div>
             <div class="game-stage" id="gameStage">
               <canvas
@@ -181,6 +199,11 @@
                 >
                   ⛶
                 </button>
+              </div>
+              <div class="zoom-controls" role="group" aria-label="Camera zoom">
+                <button id="zoomOut" class="quiet" aria-label="Zoom out" title="Zoom out (−)">−</button>
+                <button id="zoomReset" class="quiet" aria-label="Reset camera zoom" title="Reset zoom (0)">100% · Reset</button>
+                <button id="zoomIn" class="quiet" aria-label="Zoom in" title="Zoom in (+)">+</button>
               </div>
               <div class="sound-controls">
                 <button id="muteButton" class="quiet" aria-pressed="false">
@@ -295,8 +318,8 @@
             <div>
               <h3>Make your move.</h3>
               <p>
-                <strong>50 pts</strong> for every clean overtake.<br />Each car
-                counts once.
+                <strong>50 pts</strong> for each clean traffic pass.<br />Ordinary cars
+                count once.
               </p>
             </div>
           </div>
@@ -364,11 +387,33 @@
           <dt>On your phone</dt>
           <dd>Hold the steering and gas buttons together.</dd>
         </div>
+        <div>
+          <dt>− / + / 0</dt>
+          <dd>Zoom out, zoom in, or reset. Use the mouse wheel over the road or the camera buttons on touch screens.</dd>
+        </div>
       </dl>
+      <p>
+        Brake before tight corners and chicanes. Higher speeds push your car
+        toward the outside curb; steer into the bend and use the width of a clear
+        lane. The route preview and speed guide help you plan ahead. Short straights
+        give you room to accelerate again. Zoom changes your view only.
+      </p>
       <p>
         Traffic follows the three marked lanes and slows for cars ahead. Amber
         signals warn before lane changes; leave space for merging cars. The
         gravel shoulders slow you down. A stopped car cannot steer sideways.
+      </p>
+      <p>
+        Amber crossing markers warn of people preparing to dash or hop from
+        the roadside. The amber line shows how far they may enter. Use shoulders
+        for a brief escape, then return to a clear lane. Give pedestrians room;
+        contact causes the same slowdown and streak reset as a car crash.
+      </p>
+      <p>
+        Cyan arrows and a rising engine note announce an open-wheel car from
+        behind. Hold a steady line, watch its turn signals, and let it pass.
+        These fast cars yield when blocked and do not award points. Traffic
+        builds in waves, with short quieter stretches to catch your breath.
       </p>
       <p>
         Each clean pass earns 50 points, plus 30 if you pass within 12 pixels

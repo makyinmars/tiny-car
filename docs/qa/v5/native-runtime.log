@@ -1,0 +1,85 @@
+INFO: Initializing raylib 6.0
+INFO: Platform backend: DESKTOP (GLFW)
+INFO: Supported raylib modules:
+INFO:     > rcore:..... loaded (mandatory)
+INFO:     > rlgl:...... loaded (mandatory)
+INFO:     > rshapes:... loaded (optional)
+INFO:     > rtextures:. loaded (optional)
+INFO:     > rtext:..... loaded (optional)
+INFO:     > rmodels:... loaded (optional)
+INFO:     > raudio:.... loaded (optional)
+INFO: DISPLAY: Device initialized successfully 
+INFO:     > Display size: 2560 x 1440
+INFO:     > Screen size:  800 x 640
+INFO:     > Render size:  800 x 640
+INFO:     > Viewport offsets: 0, 0
+INFO: GLAD: OpenGL extensions loaded successfully
+INFO: GL: Supported extensions count: 43
+INFO: GL: OpenGL device information:
+INFO:     > Vendor:   Apple
+INFO:     > Renderer: Apple M3 Max
+INFO:     > Version:  4.1 Metal - 90.5
+INFO:     > GLSL:     4.10
+INFO: GL: VAO extension detected, VAO functions loaded successfully
+INFO: GL: NPOT textures extension detected, full NPOT textures supported
+INFO: GL: DXT compressed textures supported
+INFO: PLATFORM: DESKTOP (GLFW - Cocoa): Initialized successfully
+INFO: TEXTURE: [ID 1] Texture loaded successfully (1x1 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 1] Default texture loaded successfully
+INFO: SHADER: [ID 1] Vertex shader compiled successfully
+INFO: SHADER: [ID 2] Fragment shader compiled successfully
+INFO: SHADER: [ID 3] Program shader loaded successfully
+INFO: SHADER: [ID 3] Default shader loaded successfully
+INFO: RLGL: Render batch vertex buffers loaded successfully in RAM (CPU)
+INFO: RLGL: Render batch vertex buffers loaded successfully in VRAM (GPU)
+INFO: RLGL: Default OpenGL state initialized successfully
+INFO: TEXTURE: [ID 2] Texture loaded successfully (128x128 | GRAY_ALPHA | 1 mipmaps)
+INFO: FONT: Default font loaded successfully (224 glyphs)
+INFO: SYSTEM: Working Directory: /Users/franklin/Development/Programming/Zig/tiny_car
+INFO: TIMER: Target time per frame: 16.667 milliseconds
+INFO: AUDIO: Device initialized successfully
+INFO:     > Backend:       miniaudio | Core Audio
+INFO:     > Format:        32-bit IEEE Floating Point -> 32-bit IEEE Floating Point
+INFO:     > Channels:      2 -> 8
+INFO:     > Sample rate:   44100 -> 44100
+INFO:     > Periods size:  1323
+INFO: FILEIO: [resources/textures/cars.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (1536x1024 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 3] Texture loaded successfully (1536x1024 | R8G8B8A8 | 1 mipmaps)
+INFO: FILEIO: [resources/textures/trees.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (1254x1254 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 4] Texture loaded successfully (1254x1254 | R8G8B8A8 | 1 mipmaps)
+INFO: FILEIO: [resources/textures/grass.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (1254x1254 | R8G8B8 | 1 mipmaps)
+INFO: TEXTURE: [ID 5] Texture loaded successfully (1254x1254 | R8G8B8 | 1 mipmaps)
+INFO: FILEIO: [resources/textures/road.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (1254x1254 | R8G8B8 | 1 mipmaps)
+INFO: TEXTURE: [ID 6] Texture loaded successfully (1254x1254 | R8G8B8 | 1 mipmaps)
+INFO: FILEIO: [resources/textures/open-wheel.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (1254x1254 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 7] Texture loaded successfully (1254x1254 | R8G8B8A8 | 1 mipmaps)
+INFO: FILEIO: [resources/textures/pedestrians.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (1536x1024 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 8] Texture loaded successfully (1536x1024 | R8G8B8A8 | 1 mipmaps)
+INFO: STREAM: Initialized successfully (22050 Hz, 16 bit, Mono)
+INFO: FILEIO: [resources/sound/engine.wav] Music file loaded successfully
+INFO:     > Sample rate:   22050 Hz
+INFO:     > Sample size:   16 bits
+INFO:     > Channels:      1 (Mono)
+INFO:     > Total frames:  44100
+INFO: FILEIO: [resources/sound/car-crash.mp3] File loaded successfully
+INFO: WAVE: Data loaded successfully (24000 Hz, 32 bit, 2 channels)
+INFO: FILEIO: [resources/sound/brake.mp3] File loaded successfully
+INFO: WAVE: Data loaded successfully (44100 Hz, 32 bit, 1 channels)
+INFO: STREAM: Initialized successfully (22050 Hz, 16 bit, Mono)
+INFO: FILEIO: [resources/sound/open-wheel.wav] Music file loaded successfully
+INFO:     > Sample rate:   22050 Hz
+INFO:     > Sample size:   16 bits
+INFO:     > Channels:      1 (Mono)
+INFO:     > Total frames:  44100
+INFO: FILEIO: [resources/sound/pedestrian-alert.wav] File loaded successfully
+INFO: WAVE: Data loaded successfully (22050 Hz, 16 bit, 1 channels)
+INFO: FILEIO: [resources/sound/fast-alert.wav] File loaded successfully
+INFO: WAVE: Data loaded successfully (22050 Hz, 16 bit, 1 channels)
+INFO: FILEIO: [resources/sound/whoops.wav] File loaded successfully
+INFO: WAVE: Data loaded successfully (22050 Hz, 16 bit, 1 channels)

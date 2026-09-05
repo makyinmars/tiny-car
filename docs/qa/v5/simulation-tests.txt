@@ -1,0 +1,10 @@
+Build Summary: 6/6 steps succeeded; 39/39 tests passed
+test success
++- run test 39 pass (39 total) 11s MaxRSS:11M
+   +- compile test Debug native success 1s MaxRSS:413M
+      +- WriteFile raylib.h cached
+      +- compile lib raylib Debug native cached 122ms MaxRSS:35M
+      |  +- WriteFile raygui.c cached
+      |  +- WriteFile raygui.c (reused)
+      +- compile lib raylib Debug native (+2 more reused dependencies)
+

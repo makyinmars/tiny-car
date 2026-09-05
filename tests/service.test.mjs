@@ -220,7 +220,7 @@ test("local scores survive server restart and simultaneous writes", async () => 
   }
 });
 
-test("v3 validation uses the spawn ceiling and earned streak multiplier", () => {
+test("v5 validation uses the spawn ceiling and earned streak multiplier", () => {
   let attempts = 0;
   for (
     let tick = 0;
@@ -229,7 +229,7 @@ test("v3 validation uses the spawn ceiling and earned streak multiplier", () => 
   )
     attempts++;
   assert.equal(MAX_SPAWNS, attempts);
-  assert.throws(() => validateResult({ ...base, version: "score-attack-v2" }));
+  assert.throws(() => validateResult({ ...base, version: "score-attack-v4" }));
   assert.throws(() =>
     validateResult({
       ...base,

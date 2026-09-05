@@ -12,7 +12,9 @@ Steering depends on speed. The car carries a little sideways momentum and settle
 
 Traffic uses three marked lanes, slows behind other vehicles, and signals for one second before a lane change. A lane change takes two seconds. Traffic leaves room for approaching vehicles and cancels a signal when the target lane becomes unsafe. During a merge, it yields sideways to a nearby player. Leave space and watch the amber lights.
 
-The gravel shoulder reduces speed. Brake lights, small tire marks, dust, and crash sparks provide feedback. Engine pitch follows speed. These effects do not change traffic randomness or scoring.
+The seeded forest circuit starts gently, then introduces sweeping bends, tighter corners, chicanes, and short straights. Brake before the apex: speed pushes the car outward, and an inside line needs more steering grip. Use a wider entry when the lane is clear. The route strip and speed guide show what comes next.
+
+The gravel runoff reduces speed, with stronger slowdown through tight bends. Brake lights, small tire marks, dust, and crash sparks provide feedback. Engine pitch follows speed. These effects do not change traffic randomness or scoring.
 
 ## Desktop controls
 
@@ -25,6 +27,11 @@ The gravel shoulder reduces speed. Brake lights, small tire marks, dust, and cra
 | Space            | Start a run, start again after a run, or resume after a pause |
 | Escape           | Pause or resume |
 | M | Mute or restore sound |
+| − / + | Zoom out / in |
+| 0 | Reset zoom to the default view |
+| Mouse wheel | Zoom; native camera buttons also support clicks |
+
+Zoom eases between 79% and 128% of the default view. It changes presentation only. The browser also has large touch camera buttons; shortcuts ignore text fields and dialogs.
 
 The game also pauses when its window loses focus.
 
@@ -148,9 +155,13 @@ Create a challenge, copy its invitation link, and have each friend choose a nick
 - Every **five** clean passes increases the multiplier for the next pass by 1×, up to **5×**. It applies to all pass bonuses and resets after a crash.
 - Collisions slow you down and give one second of recovery. The race continues for the full **90 seconds**.
 
-The post-run receipt separates overtakes, close calls, speed points, and multiplier points. It also reports crashes and improvement over the previous personal best. The optional ghost is a local visual replay on this exact road. It records position and body angle and has no collision or scoring effects. Playback blends between valid samples.
+Amber markers announce pedestrians preparing to hop or dash into a shoulder, and sometimes an outer lane. Their amber path shows the crossing area. Take a clear route back onto the road; sustained shoulder driving risks losing your streak. People wait if the road leaves no safe exit.
 
-Rules version `score-attack-v3` separates these runs from previous records. Old challenges require a new invitation. Old bests and ghosts remain in their previous storage keys. The browser does not load them into v3 or retry old result submissions. Nickname and sound preferences remain available.
+Cyan arrows and a high engine note announce open-wheel cars approaching from behind. Hold a steady line and watch their signals. They slow for blocked routes and use controlled passes. They do not award points. Encounters build across the run, with short quieter stretches between waves. The browser repeats warnings above the canvas so they stay readable on a phone.
+
+The post-run receipt separates overtakes, close calls, speed points, and multiplier points. It also reports crashes and improvement over the previous personal best. The optional ghost is a local visual replay on this exact road. It records route distance, lane position, and body angle and has no collision or scoring effects. Playback blends between valid samples.
+
+Rules version `score-attack-v5` separates these runs from previous records. Old challenges require a new invitation. Old bests and ghosts remain in their previous storage keys. The browser does not load them into v5 or retry old result submissions. Nickname and sound preferences remain available.
 
 Runs started while the API is unreachable remain local. If submission fails after an online start, the result is queued locally for retry for up to 30 minutes from the start. A visible retry button and automatic retry on reload handle transient failures. Browser storage being cleared also clears your local player identity; a nickname alone does not recover old records.
 
@@ -173,8 +184,16 @@ Zig tests cover deterministic simulation at 30, 60, and 144 Hz, scoring, handlin
 
 ## Visual update
 
-The renderer uses a shared road layout, detailed overhead vehicle sprites, four tree crowns, and tiled grass and asphalt. All ground layers use the same traveled distance. The car collision shapes rotate with the visible bodies.
+The renderer uses a shared road layout, detailed overhead vehicle sprites, four tree crowns, tiled grass, and curved asphalt ribbons. All ground layers use the same route and traveled distance. The car collision shapes rotate with the visible bodies.
 
 [Before/after captures and runtime notes](docs/driving-v3.md) document the update. [Asset prompts and source rectangles](docs/art-v3.md) describe the new art.
 
 ![Tiny Car v3 native gameplay](docs/qa/after-native.jpg)
+
+## Curved circuit (v5)
+
+[Route design, validation, captures, and playtest limits](docs/route-v5.md) describe the current update.
+
+## Roadside encounters (v4 history)
+
+[Encounter rules, verification, captures, and playtest limits](docs/encounters-v4.md) document the earlier encounter update. [Generated art and sound](docs/art-v4.md) includes source sizes, animation details, and the generation prompts.

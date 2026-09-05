@@ -214,6 +214,46 @@ h1 {
   color: var(--sage);
   font-size: 20px;
 }
+.encounter-strip {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--line);
+  background: #14261d;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.encounter-strip p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  flex: 1;
+}
+.encounter-strip [hidden] {
+  display: none;
+}
+#roadMood {
+  color: var(--muted);
+}
+.crossing-warning {
+  color: #ffca66;
+}
+.fast-warning {
+  color: #76e8e9;
+}
+.warning-symbol {
+  flex: 0 0 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 700;
+}
 .game-stage {
   position: relative;
   isolation: isolate;
@@ -316,6 +356,70 @@ kbd {
   justify-content: space-between;
   padding: 7px 12px;
   border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.route-cue {
+  margin: 0;
+  padding: 9px 16px;
+  color: var(--sage);
+  background: #14251f;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+.route-cue.brake-cue {
+  color: #ffca66;
+}
+.mobile-hud {
+  display: none;
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .mobile-hud {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+    font-variant-numeric: tabular-nums;
+  }
+  .mobile-hud span {
+    display: grid;
+    gap: 2px;
+  }
+  .mobile-hud strong {
+    color: var(--cream);
+    font-size: 17px;
+  }
+  .mobile-hud small {
+    color: var(--sage);
+    font-size: 11px;
+  }
+}
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #1c302a;
+}
+.zoom-controls button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  touch-action: manipulation;
+}
+.zoom-controls #zoomReset {
+  min-width: 108px;
+  font-size: 11px;
+}
+@media (max-width: 480px) {
+  .zoom-controls {
+    order: 3;
+    justify-content: center;
+    width: 100%;
+  }
 }
 .playback,
 .sound-controls {

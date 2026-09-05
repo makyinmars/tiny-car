@@ -1,6 +1,6 @@
 "use strict";
-const BRIDGE_VERSION = 3;
-const VERSION = "score-attack-v3";
+const BRIDGE_VERSION = 5;
+const VERSION = "score-attack-v5";
 const SOLO_SEED = 20260905;
 const $ = (id) => document.getElementById(id);
 const fmt = (value) => Number(value).toLocaleString();
@@ -60,6 +60,19 @@ let pollTime = 0;
 let boardRequest = 0;
 let playerId = "";
 let noticeTimer;
+let lastWarningKey = "";
+const DEFAULT_ZOOM = 0.82;
+let zoom = DEFAULT_ZOOM;
+
+function setZoom(value) {
+  if (!ready || anyDialog() || !Number.isFinite(value)) return;
+  zoom = Math.max(0.65, Math.min(1.05, value));
+  Module._tiny_zoom(zoom);
+  $("zoomReset").textContent =
+    `${Math.round((zoom / DEFAULT_ZOOM) * 100)}% · Reset`;
+  $("zoomOut").disabled = zoom <= 0.65;
+  $("zoomIn").disabled = zoom >= 1.05;
+}
 const keys = new Set();
 const pointers = new Map();
 const keyBits = {
@@ -77,13 +90,15 @@ const bestKey = () =>
   `best:${VERSION}:${group?.id || "solo"}:${group?.seed || SOLO_SEED}`;
 const validGhostPoint = (point) =>
   Array.isArray(point) &&
-  point.length === 3 &&
+  point.length === 4 &&
   point.every(Number.isFinite) &&
   point[0] >= 236 &&
   point[0] <= 526 &&
   point[1] >= 400 &&
   point[1] <= 510 &&
-  Math.abs(point[2]) <= 0.14;
+  Math.abs(point[2]) <= 0.14 &&
+  point[3] >= 0 &&
+  point[3] <= 40500;
 
 function compatibleBest(key) {
   const best = storage.read(key, null);
@@ -238,7 +253,7 @@ async function startRun() {
   ghostRecording = [];
   lastTickSample = -1;
   processedFinish = false;
-  Module._tiny_ghost(-100, -100, 0);
+  Module._tiny_ghost(-100, -100, 0, 0);
   Module._tiny_start(group?.seed || SOLO_SEED);
   $("runMode").textContent =
     group && currentSession ? "FRIENDS CHALLENGE" : "LOCAL RUN";
@@ -480,10 +495,62 @@ function finishRun() {
       9000,
     );
 }
+function updateEncounters(next) {
+  for (const [id, text] of [
+    ["mobileScore", fmt(metric(1))],
+    ["mobileTime", String(Math.max(0, Math.ceil((5400 - metric(2)) / 60)))],
+    ["mobileSpeed", String(Math.round(metric(4)))],
+    ["mobileClean", `${metric(3)}×`],
+  ]) {
+    if ($(id).textContent !== text) $(id).textContent = text;
+  }
+  const corner =
+    ["Short straight", "Sweeping bends", "Tight corners", "Chicane"][
+      metric(40)
+    ] || "Racing route";
+  const guide = Math.round(metric(42) || 90);
+  const lead = Math.max(0, Math.round((metric(41) || 0) / 50) * 10);
+  const cue = `${corner} ${lead ? `in ${lead}m` : "ahead"} · ${guide} mph guide`;
+  if ($("routeCue").textContent !== cue) $("routeCue").textContent = cue;
+  $("routeCue").classList.toggle("brake-cue", metric(4) > guide + 5);
+  const flags = metric(28) || 0;
+  const pace = metric(29) || 0;
+  const key = `${next}:${flags}:${pace}`;
+  if (key === lastWarningKey) return;
+  lastWarningKey = key;
+  const active = next === 2 || next === 3;
+  const crossing = active && (flags & 3) !== 0;
+  const fast = active && (flags & 8) !== 0;
+  $("pedestrianWarning").hidden = !crossing;
+  $("fastWarning").hidden = !fast;
+  $("roadMood").hidden = crossing || fast;
+  if (crossing)
+    $("pedestrianWarningText").textContent =
+      `${flags & 1 ? "Left" : "Right"} ${flags & 4 ? "outer lane" : "shoulder"} crossing`;
+  if (fast)
+    $("fastWarningText").textContent =
+      flags & 16
+        ? "Fast car yielding · hold your line"
+        : "Fast car behind · hold your line";
+  if (!crossing && !fast)
+    $("roadMood").textContent =
+      next === 3
+        ? "Paused. Resume when you’re ready."
+        : next === 2
+          ? [
+              "Settle in. Watch the signals.",
+              "Picking up. Find your rhythm.",
+              "Final push. Keep it clean.",
+              "Take a breath. A quieter stretch.",
+            ][pace]
+          : "Watch the signals. Keep it clean.";
+}
+
 function poll(now) {
   if (ready && now - pollTime >= 50) {
     pollTime = now;
     const next = gameState();
+    updateEncounters(next);
     if (next !== state) {
       if (next !== 2) clearInput();
       updateState();
@@ -496,6 +563,7 @@ function poll(now) {
           Math.round(metric(14) * 10) / 10,
           Math.round(metric(15) * 10) / 10,
           Math.round(metric(18) * 10000) / 10000,
+          Math.round(metric(37) * 10) / 10,
         ];
         lastTickSample = sample;
       }
@@ -511,6 +579,7 @@ function poll(now) {
         validGhostPoint(point) ? point[0] : -100,
         validGhostPoint(point) ? point[1] : -100,
         validGhostPoint(point) ? point[2] : 0,
+        validGhostPoint(point) ? point[3] : 0,
       );
     }
     if (next === 4) finishRun();
@@ -541,7 +610,7 @@ $("muteButton").addEventListener("click", () => {
 $("ghostToggle").addEventListener("change", () => {
   settings.ghost = $("ghostToggle").checked;
   saveSettings();
-  if (!settings.ghost && ready) Module._tiny_ghost(-100, -100, 0);
+  if (!settings.ghost && ready) Module._tiny_ghost(-100, -100, 0, 0);
 });
 $("playButton").addEventListener("click", startRun);
 $("retryButton").addEventListener("click", startRun);
@@ -620,7 +689,33 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) pauseGame();
 });
 window.addEventListener("keydown", (event) => {
-  if (event.target.matches("input, textarea, select") || anyDialog()) return;
+  if (
+    event.target.closest("input, textarea, select, [contenteditable]") ||
+    anyDialog() ||
+    event.ctrlKey ||
+    event.metaKey ||
+    event.altKey
+  )
+    return;
+  if (
+    [
+      "Minus",
+      "NumpadSubtract",
+      "Equal",
+      "NumpadAdd",
+      "Digit0",
+      "Numpad0",
+    ].includes(event.code)
+  ) {
+    event.preventDefault();
+    setZoom(
+      ["Digit0", "Numpad0"].includes(event.code)
+        ? DEFAULT_ZOOM
+        : zoom +
+            (["Minus", "NumpadSubtract"].includes(event.code) ? -0.05 : 0.05),
+    );
+    return;
+  }
   if (event.code in keyBits) {
     event.preventDefault();
     unlockAudio();
@@ -648,6 +743,25 @@ window.addEventListener("keyup", (event) => {
   keys.delete(event.code);
   applyInput();
 });
+$("zoomOut").addEventListener("click", () => setZoom(zoom - 0.05));
+$("zoomIn").addEventListener("click", () => setZoom(zoom + 0.05));
+$("zoomReset").addEventListener("click", () => setZoom(DEFAULT_ZOOM));
+$("canvas").addEventListener(
+  "wheel",
+  (event) => {
+    if (
+      !ready ||
+      anyDialog() ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.deltaY === 0
+    )
+      return;
+    event.preventDefault();
+    setZoom(zoom - Math.sign(event.deltaY) * 0.04);
+  },
+  { passive: false },
+);
 for (const button of document.querySelectorAll("[data-input]")) {
   button.addEventListener("pointerdown", (event) => {
     if (![1, 2].includes(gameState())) return;
@@ -700,6 +814,7 @@ var Module = {
       return;
     }
     ready = true;
+    setZoom(DEFAULT_ZOOM);
     $("loadingOverlay").hidden = true;
     $("playButton").disabled = false;
     syncSound();

@@ -1,0 +1,38 @@
+{
+  "version": "score-attack-v5",
+  "fixedHz": 60,
+  "durationTicks": 5400,
+  "seedRange": [
+    1,
+    64
+  ],
+  "shoulderRuns": 128,
+  "respondingRuns": 128,
+  "variedCorneringRuns": 32,
+  "pedestrianEntries": 88,
+  "outerLaneEntries": 3,
+  "entriesWithActiveFastCar": 37,
+  "leftContacts": 39,
+  "rightContacts": 46,
+  "shoulderContacts": 85,
+  "runsWithAtLeastTwoContacts": 16,
+  "respondingDriverContacts": 0,
+  "fastSpawns": 225,
+  "fastOvertakesOfOrdinaryCars": 791,
+  "peakVisibleFastSpeedPixelsPerSecond": 1011.0284,
+  "vehicleOverlapChecks": "world-space oriented bodies, all active pairs each tick",
+  "minimumWarningTicks": 150,
+  "minimumVisiblePreparationTicks": 24,
+  "minimumClearEscapeTicks": 60,
+  "ordinarySpawnAttemptsPerRun": 113,
+  "frameRates": [
+    30,
+    60,
+    144
+  ],
+  "zoomRange": [
+    0.65,
+    1.05
+  ],
+  "defaultZoom": 0.82
+}

@@ -1,0 +1,36 @@
+{
+  "version": "score-attack-v5",
+  "nativeReference": "left-shoulder",
+  "runtime": "WebAssembly / in-app Chromium",
+  "metricsCompared": 43,
+  "exactMatch": true,
+  "raceTicks": 5400,
+  "elapsedMilliseconds": 93006.59999999963,
+  "zoomRequests": [
+    0.65,
+    0.82,
+    1.05
+  ],
+  "score": 4000,
+  "passes": 29,
+  "crashes": 2,
+  "phoneCruise": {
+    "viewport": [
+      390,
+      844
+    ],
+    "exactMatch": true,
+    "metricsCompared": 43,
+    "score": 500,
+    "passes": 9,
+    "crashes": 6,
+    "pauseResume": true
+  },
+  "finalBuildGas": {
+    "metricsCompared": 43,
+    "exactMatch": true,
+    "score": 3290,
+    "passes": 38,
+    "crashes": 22
+  }
+}

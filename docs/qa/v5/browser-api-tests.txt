@@ -1,0 +1,33 @@
+$ node --test tests/*.test.mjs
+✔ keyboard and touch gas held through countdown reach the simulation (88.996625ms)
+✔ blur pauses, clears held controls and does not resume automatically (21.749792ms)
+✔ two touch pointers steer and accelerate together and release independently (21.461125ms)
+✔ finishing saves one personal best, preserves stronger runs, and renders full accounting (18.346ms)
+✔ typing a nickname does not steer, and audio preferences persist (14.60225ms)
+✔ v4 bests stay isolated and a mismatched simulation cannot start (29.145125ms)
+✔ ghosts record body heading and interpolate only compatible finite points (14.103792ms)
+✔ instructions pause a run and closing them requires an explicit resume (16.497542ms)
+✔ pending results from older rules are not retried (13.6405ms)
+✔ a v4 ghost inside a v5 storage key cannot enter the new run (14.950959ms)
+✔ readable crossing and fast-car warnings follow the simulation, including pause (15.456375ms)
+✔ camera keys and buttons clamp and reset without changing driving input (16.842042ms)
+✔ wheel zoom is confined to the canvas and preserves browser pinch shortcuts (12.147083ms)
+✔ phone status text follows the same race metrics at every camera scale (11.844959ms)
+✔ API Gateway default route returns a successful CORS preflight (0.471334ms)
+✔ Lambda adapter returns health and rejects malformed or oversized JSON (0.309667ms)
+✔ friends share a seed, one best per identity, ties share rank, correct gaps (9.190375ms)
+✔ rejects premature, incomplete, mismatched and impossible scores (0.500792ms)
+✔ concurrent retries are idempotent and do not overwrite the accepted result (0.295334ms)
+✔ weekly board rolls over at Monday UTC while all-time retains records (0.229666ms)
+✔ validation handles malformed names, missing groups, versions and periods (0.2405ms)
+✔ local scores survive server restart and simultaneous writes (13.390959ms)
+✔ v5 validation uses the spawn ceiling and earned streak multiplier (0.281ms)
+✔ simulation, browser handshake, and API share the current rules version (2.266791ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 613.969125
