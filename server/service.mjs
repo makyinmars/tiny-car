@@ -1,7 +1,9 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 
-export const VERSION = "score-attack-v2";
+export const VERSION = "score-attack-v3";
 export const TICKS = 5400;
+// 66 - min(floor(tick / 160), 33) ticks between input-independent attempts.
+export const MAX_SPAWNS = 113;
 const id = () => randomBytes(16).toString("hex");
 const fail = (status, message) => {
   throw Object.assign(new Error(message), { status });
@@ -29,15 +31,15 @@ export function validateResult(result) {
   if (!result || result.version !== VERSION || result.ticks !== TICKS)
     fail(400, "Complete a 90-second run with the current game version.");
   const limits = {
-    score: 90000,
-    overtakes: 180,
-    nearMisses: 180,
+    score: MAX_SPAWNS * 120 * 5,
+    overtakes: MAX_SPAWNS,
+    nearMisses: MAX_SPAWNS,
     crashes: 90,
-    basePoints: 9000,
-    nearPoints: 5400,
-    speedPoints: 7200,
-    cleanPoints: 72000,
-    bestStreak: 180,
+    basePoints: MAX_SPAWNS * 50,
+    nearPoints: MAX_SPAWNS * 30,
+    speedPoints: MAX_SPAWNS * 40,
+    cleanPoints: MAX_SPAWNS * 120 * 4,
+    bestStreak: MAX_SPAWNS,
   };
   for (const [key, max] of Object.entries(limits)) {
     if (
@@ -50,12 +52,15 @@ export function validateResult(result) {
   if (
     result.nearMisses > result.overtakes ||
     result.bestStreak > result.overtakes ||
+    (result.overtakes > 0 && result.bestStreak === 0) ||
     result.basePoints !== result.overtakes * 50 ||
     result.nearPoints !== result.nearMisses * 30 ||
     result.speedPoints > result.overtakes * 40 ||
     result.speedPoints % 20 !== 0 ||
     result.cleanPoints >
-      (result.basePoints + result.nearPoints + result.speedPoints) * 4 ||
+      (result.basePoints + result.nearPoints + result.speedPoints) *
+        Math.min(4, Math.max(0, Math.floor((result.bestStreak - 1) / 5))) ||
+    result.cleanPoints % 10 !== 0 ||
     result.score !==
       result.basePoints +
         result.nearPoints +

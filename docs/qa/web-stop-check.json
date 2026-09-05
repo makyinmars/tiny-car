@@ -1,0 +1,38 @@
+{
+  "audioFast": {
+    "peak": 0.04378515109419823,
+    "rms": 0.013532247001892522,
+    "sampleRate": 44100,
+    "state": "running"
+  },
+  "audioIdle": {
+    "peak": 0.010141479782760143,
+    "rms": 0.005661772198440668,
+    "sampleRate": 44100,
+    "state": "running"
+  },
+  "before": {
+    "heading": 0,
+    "lateral": 0,
+    "speed": 47.84166717529297,
+    "state": 2,
+    "tick": 1655,
+    "x": 381
+  },
+  "steered": {
+    "heading": 0,
+    "lateral": 0,
+    "speed": 0,
+    "state": 2,
+    "tick": 2046,
+    "x": 381
+  },
+  "stopped": {
+    "heading": 0,
+    "lateral": 0,
+    "speed": 0,
+    "state": 2,
+    "tick": 1986,
+    "x": 381
+  }
+}

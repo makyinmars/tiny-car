@@ -1,0 +1,28 @@
+$ node --test tests/*.test.mjs
+✔ keyboard and touch gas held through countdown reach the simulation (70.454958ms)
+✔ blur pauses, clears held controls and does not resume automatically (18.162334ms)
+✔ two touch pointers steer and accelerate together and release independently (18.3715ms)
+✔ finishing saves one personal best, preserves stronger runs, and renders full accounting (24.528834ms)
+✔ typing a nickname does not steer, and audio preferences persist (12.100166ms)
+✔ v2 bests stay isolated and a mismatched simulation cannot start (26.59725ms)
+✔ ghosts record body heading and interpolate only compatible finite points (12.794958ms)
+✔ instructions pause a run and closing them requires an explicit resume (12.828083ms)
+✔ pending results from older rules are not retried (12.377416ms)
+✔ API Gateway default route returns a successful CORS preflight (0.401292ms)
+✔ Lambda adapter returns health and rejects malformed or oversized JSON (0.252166ms)
+✔ friends share a seed, one best per identity, ties share rank, correct gaps (9.122459ms)
+✔ rejects premature, incomplete, mismatched and impossible scores (0.475041ms)
+✔ concurrent retries are idempotent and do not overwrite the accepted result (0.287084ms)
+✔ weekly board rolls over at Monday UTC while all-time retains records (0.227083ms)
+✔ validation handles malformed names, missing groups, versions and periods (0.226458ms)
+✔ local scores survive server restart and simultaneous writes (12.418708ms)
+✔ v3 validation uses the spawn ceiling and earned streak multiplier (0.273ms)
+✔ simulation, browser handshake, and API share the current rules version (2.029458ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 491.669833

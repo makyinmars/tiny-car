@@ -1,0 +1,16 @@
+{
+  "basePoints": 2450,
+  "bestStreak": 35,
+  "cleanPoints": 9330,
+  "crashes": 9,
+  "ghostSamples": 900,
+  "nearMisses": 14,
+  "nearPoints": 420,
+  "overtakes": 49,
+  "score": 14000,
+  "seed": 1400427851,
+  "speedPoints": 1800,
+  "submission": "Saved to the friends board. Your best run counts.",
+  "ticks": 5400,
+  "version": "score-attack-v3"
+}

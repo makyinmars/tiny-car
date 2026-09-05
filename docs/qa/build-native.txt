@@ -1,0 +1,23 @@
+Build Summary: 6/6 steps succeeded
+install success
++- install tiny_car success
+   +- compile exe tiny_car ReleaseSafe native success 5s MaxRSS:434M
+      +- WriteFile raylib.h cached
+      +- compile lib raylib ReleaseSafe native cached 82ms MaxRSS:35M
+      |  +- WriteFile raygui.c cached
+      |  +- WriteFile raygui.c (reused)
+      +- compile lib raylib ReleaseSafe native (+2 more reused dependencies)
+      +- WriteFile raylib.h (reused)
+      +- compile lib raylib ReleaseSafe native (+2 more reused dependencies)
+      +- compile lib raylib ReleaseSafe native (+2 more reused dependencies)
+
+Build Summary: 6/6 steps succeeded; 21/21 tests passed
+test success
++- run test 21 pass (21 total) 255ms MaxRSS:9M
+   +- compile test ReleaseSafe native success 5s MaxRSS:452M
+      +- WriteFile raylib.h cached
+      +- compile lib raylib ReleaseSafe native cached 79ms MaxRSS:35M
+      |  +- WriteFile raygui.c cached
+      |  +- WriteFile raygui.c (reused)
+      +- compile lib raylib ReleaseSafe native (+2 more reused dependencies)
+

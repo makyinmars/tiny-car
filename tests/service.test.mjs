@@ -3,7 +3,13 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createService, VERSION, weekKey } from "../server/service.mjs";
+import {
+  createService,
+  VERSION,
+  weekKey,
+  validateResult,
+  MAX_SPAWNS,
+} from "../server/service.mjs";
 import { MemoryStore, FileStore } from "../server/file-store.mjs";
 const token = (n) => n.toString(16).padStart(32, "0");
 const base = {
@@ -212,4 +218,38 @@ test("local scores survive server restart and simultaneous writes", async () => 
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
+});
+
+test("v3 validation uses the spawn ceiling and earned streak multiplier", () => {
+  let attempts = 0;
+  for (
+    let tick = 0;
+    tick < 5400;
+    tick += 66 - Math.min(Math.floor(tick / 160), 33)
+  )
+    attempts++;
+  assert.equal(MAX_SPAWNS, attempts);
+  assert.throws(() => validateResult({ ...base, version: "score-attack-v2" }));
+  assert.throws(() =>
+    validateResult({
+      ...base,
+      overtakes: 114,
+      basePoints: 5700,
+      score: 5700,
+      bestStreak: 114,
+    }),
+  );
+  assert.throws(() => validateResult({ ...base, cleanPoints: 50, score: 100 }));
+  assert.throws(() => validateResult({ ...base, bestStreak: 0 }));
+  assert.equal(
+    validateResult({
+      ...base,
+      overtakes: 6,
+      basePoints: 300,
+      bestStreak: 6,
+      cleanPoints: 50,
+      score: 350,
+    }).score,
+    350,
+  );
 });

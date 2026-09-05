@@ -1,5 +1,43 @@
 const std = @import("std");
 
+pub const Tile = struct { y: f32, mirrored: bool };
+
+/// Alternating full tiles share the very same edge texels. This makes generated
+/// materials seamless without relying on NPOT texture-repeat support in WebGL.
+pub const Tiles = struct {
+    size: f32,
+    viewport: f32,
+    y: f32,
+    index: i32,
+
+    pub fn init(size: f32, viewport: f32, distance: f32) Tiles {
+        std.debug.assert(size > 0);
+        return .{ .size = size, .viewport = viewport, .y = @mod(distance, size) - size, .index = -@as(i32, @intFromFloat(@floor(distance / size))) - 1 };
+    }
+
+    pub fn next(self: *Tiles) ?Tile {
+        if (self.y >= self.viewport) return null;
+        const tile: Tile = .{ .y = self.y, .mirrored = @mod(self.index, 2) != 0 };
+        self.y += self.size;
+        self.index += 1;
+        return tile;
+    }
+};
+
+test "mirrored ground tiles keep their orientation at scroll boundaries" {
+    var before = Tiles.init(256, 640, 255.5);
+    _ = before.next();
+    const visible_before = before.next().?;
+    var after = Tiles.init(256, 640, 256.5);
+    _ = after.next();
+    const visible_after = after.next().?;
+    try std.testing.expect(visible_before.mirrored != visible_after.mirrored);
+    // The tile previously at y=255.5 is now the next tile, at y=256.5.
+    const next_after = after.next().?;
+    try std.testing.expectEqual(visible_before.mirrored, next_after.mirrored);
+    try std.testing.expectApproxEqAbs(visible_before.y + 1, next_after.y, 0.001);
+}
+
 pub const Row = struct {
     source_y: f32,
     destination_y: f32,

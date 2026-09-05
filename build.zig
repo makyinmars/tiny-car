@@ -5,13 +5,11 @@ fn addAssets(b: *std.Build, exe: *std.Build.Step.Compile) void {
     const assets = [_]struct { []const u8, []const u8 }{
         .{ "resources/sound/brake.mp3", "brake" },
         .{ "resources/sound/car-crash.mp3", "car-crash" },
-        .{ "resources/sound/speeding.mp3", "speeding" },
-        .{ "resources/textures/car.png", "car" },
+        .{ "resources/sound/engine.wav", "engine" },
         .{ "resources/textures/cars.png", "cars" },
         .{ "resources/textures/grass.png", "grass" },
-        .{ "resources/textures/pear.png", "pear" },
         .{ "resources/textures/road.png", "road" },
-        .{ "resources/textures/trees.png", "tress" },
+        .{ "resources/textures/trees.png", "trees" },
     };
 
     for (assets) |asset| {

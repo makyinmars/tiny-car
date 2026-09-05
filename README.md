@@ -8,16 +8,23 @@ Each run starts with a three-second countdown. Passing a car without a collision
 
 Consecutive passes without a collision raise the points multiplier to a maximum of 5×. A crash slows your car and resets that streak. The run ends when time runs out.
 
+Steering depends on speed. The car carries a little sideways momentum and settles when you release the steering key. It cannot slide sideways while stopped. Hold gas to accelerate toward 90 mph, or release it to settle toward a gentle 42 mph cruise. Hold brake to stop. Brake takes priority when both pedals are held.
+
+Traffic uses three marked lanes, slows behind other vehicles, and signals for one second before a lane change. A lane change takes two seconds. Traffic leaves room for approaching vehicles and cancels a signal when the target lane becomes unsafe. During a merge, it yields sideways to a nearby player. Leave space and watch the amber lights.
+
+The gravel shoulder reduces speed. Brake lights, small tire marks, dust, and crash sparks provide feedback. Engine pitch follows speed. These effects do not change traffic randomness or scoring.
+
 ## Desktop controls
 
 | Key              | Action                                                        |
 | ---------------- | ------------------------------------------------------------- |
-| Up arrow or W    | Accelerate and move up                                        |
-| Down arrow or S  | Brake and move down                                           |
-| Left arrow or A  | Move left                                                     |
-| Right arrow or D | Move right                                                    |
+| Up arrow or W    | Accelerate toward 90 mph |
+| Down arrow or S  | Brake to a stop |
+| Left arrow or A  | Steer left |
+| Right arrow or D | Steer right |
 | Space            | Start a run, start again after a run, or resume after a pause |
-| Escape           | Pause or resume                                               |
+| Escape           | Pause or resume |
+| M | Mute or restore sound |
 
 The game also pauses when its window loses focus.
 
@@ -43,7 +50,7 @@ Build the game:
 zig build
 ```
 
-The build puts the executable in `zig-out/bin/`. Run it from the project root so that the game can load files from `resources/`.
+The build puts the executable in `zig-out/bin/`. Run it from the project root so that the game can load files from `resources/`. Packaged desktop copies can also place `resources/` beside the executable.
 
 Build and run the game:
 
@@ -57,7 +64,7 @@ Run the tests:
 zig build test
 ```
 
-The tests cover scoring, traffic, pause behavior, race timing, and grass drawing.
+The tests cover scoring, inertial steering, braking, traffic gaps, safe merges, pause behavior, race timing, rotated collisions, and ground tiles.
 
 ### Browser
 
@@ -141,7 +148,9 @@ Create a challenge, copy its invitation link, and have each friend choose a nick
 - Every **five** clean passes increases the multiplier for the next pass by 1×, up to **5×**. It applies to all pass bonuses and resets after a crash.
 - Collisions slow you down and give one second of recovery. The race continues for the full **90 seconds**.
 
-The post-run receipt separates overtakes, close calls, speed points, and multiplier points. It also reports crashes and improvement over the previous personal best. The optional ghost is a local visual replay on this exact road; it has no collision or scoring effects.
+The post-run receipt separates overtakes, close calls, speed points, and multiplier points. It also reports crashes and improvement over the previous personal best. The optional ghost is a local visual replay on this exact road. It records position and body angle and has no collision or scoring effects. Playback blends between valid samples.
+
+Rules version `score-attack-v3` separates these runs from previous records. Old challenges require a new invitation. Old bests and ghosts remain in their previous storage keys. The browser does not load them into v3 or retry old result submissions. Nickname and sound preferences remain available.
 
 Runs started while the API is unreachable remain local. If submission fails after an online start, the result is queued locally for retry for up to 30 minutes from the start. A visible retry button and automatic retry on reload handle transient failures. Browser storage being cleared also clears your local player identity; a nickname alone does not recover old records.
 
@@ -160,10 +169,12 @@ bun run build:web
 
 Use `bun run format` to format JavaScript, `.mjs` files, CSS, and tooling JSON with Oxfmt. Oxlint checks JavaScript and `.mjs` files; it does not lint CSS. Use `zig fmt` for Zig files. Run `bun run test` to use the project's Node test command; `bun test` selects Bun's own test runner.
 
-Zig tests cover deterministic simulation at 30, 60, and 144 Hz, single-award passes, scoring, pause/restart behavior, and traffic scheduling. Node tests cover the API, persistence, ranking, retries, browser inputs, personal bests, and saved settings. Also play a full run in the browser and check phone controls when changing the integration.
+Zig tests cover deterministic simulation at 30, 60, and 144 Hz, scoring, handling, safe traffic movement, pause/restart behavior, and traffic scheduling. Node tests cover the API, persistence, ranking, retries, browser inputs, personal bests, and saved settings. Also play a full run in the browser and check phone controls when changing the integration.
 
-## Demo
+## Visual update
 
-<https://github.com/user-attachments/assets/fe2adb7e-9b1d-49b2-adb4-2702e8e94c2e>
+The renderer uses a shared road layout, detailed overhead vehicle sprites, four tree crowns, and tiled grass and asphalt. All ground layers use the same traveled distance. The car collision shapes rotate with the visible bodies.
 
-<img width="1245" alt="Tiny Car gameplay screenshot" src="https://github.com/user-attachments/assets/34453f71-e27d-41d1-9129-d86c38149251">
+[Before/after captures and runtime notes](docs/driving-v3.md) document the update. [Asset prompts and source rectangles](docs/art-v3.md) describe the new art.
+
+![Tiny Car v3 native gameplay](docs/qa/after-native.jpg)

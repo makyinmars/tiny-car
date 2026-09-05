@@ -1,5 +1,6 @@
 "use strict";
-const VERSION = "score-attack-v2";
+const BRIDGE_VERSION = 3;
+const VERSION = "score-attack-v3";
 const SOLO_SEED = 20260905;
 const $ = (id) => document.getElementById(id);
 const fmt = (value) => Number(value).toLocaleString();
@@ -74,6 +75,26 @@ const keyBits = {
 const apiBase = (window.TINY_CAR_CONFIG?.apiUrl || "/api").replace(/\/$/, "");
 const bestKey = () =>
   `best:${VERSION}:${group?.id || "solo"}:${group?.seed || SOLO_SEED}`;
+const validGhostPoint = (point) =>
+  Array.isArray(point) &&
+  point.length === 3 &&
+  point.every(Number.isFinite) &&
+  point[0] >= 236 &&
+  point[0] <= 526 &&
+  point[1] >= 400 &&
+  point[1] <= 510 &&
+  Math.abs(point[2]) <= 0.14;
+
+function compatibleBest(key) {
+  const best = storage.read(key, null);
+  return best?.version === VERSION &&
+    best.ticks === 5400 &&
+    best.seed === (group?.seed || SOLO_SEED) &&
+    Number.isSafeInteger(best.score) &&
+    best.score >= 0
+    ? best
+    : null;
+}
 const metric = (key) => Module._tiny_metric(key);
 const gameState = () => (ready ? metric(0) : 0);
 const anyDialog = () => $("helpDialog").open || $("groupDialog").open;
@@ -113,7 +134,7 @@ async function api(path, body) {
   return data;
 }
 function updateBest() {
-  const best = storage.read(bestKey(), null);
+  const best = compatibleBest(bestKey());
   $("personalBest").replaceChildren(
     document.createTextNode(
       best && Number.isFinite(best.score) ? fmt(best.score) + " " : "— ",
@@ -212,12 +233,12 @@ async function startRun() {
     }
   }
   runKey = bestKey();
-  const previous = storage.read(runKey, null);
+  const previous = compatibleBest(runKey);
   runGhost = Array.isArray(previous?.ghost) ? previous.ghost : null;
   ghostRecording = [];
   lastTickSample = -1;
   processedFinish = false;
-  Module._tiny_ghost(-100, -100);
+  Module._tiny_ghost(-100, -100, 0);
   Module._tiny_start(group?.seed || SOLO_SEED);
   $("runMode").textContent =
     group && currentSession ? "FRIENDS CHALLENGE" : "LOCAL RUN";
@@ -406,7 +427,7 @@ function finishRun() {
     cleanPoints: metric(11),
     bestStreak: metric(12),
   };
-  const old = storage.read(runKey, null);
+  const old = compatibleBest(runKey);
   const improved = !old || result.score > old.score;
   let saved = true;
   if (improved)
@@ -441,7 +462,11 @@ function finishRun() {
     const previousPending = storage.read("pending", []);
     const pending = (
       Array.isArray(previousPending) ? previousPending : []
-    ).filter((item) => item?.session?.expiresAt > Date.now());
+    ).filter(
+      (item) =>
+        item?.session?.expiresAt > Date.now() &&
+        item?.result?.version === VERSION,
+    );
     pending.push(lastResult);
     storage.write("pending", pending.slice(-10));
     submitResult(lastResult);
@@ -470,13 +495,22 @@ function poll(now) {
         ghostRecording[sample] = [
           Math.round(metric(14) * 10) / 10,
           Math.round(metric(15) * 10) / 10,
+          Math.round(metric(18) * 10000) / 10000,
         ];
         lastTickSample = sample;
       }
-      const point = settings.ghost && runGhost?.[sample];
+      let point = settings.ghost && runGhost?.[sample];
+      const nextPoint = settings.ghost && runGhost?.[sample + 1];
+      if (validGhostPoint(point) && validGhostPoint(nextPoint)) {
+        const fraction = metric(2) / 6 - sample;
+        point = point.map(
+          (value, index) => value + (nextPoint[index] - value) * fraction,
+        );
+      }
       Module._tiny_ghost(
-        Array.isArray(point) && point.length === 2 ? point[0] : -100,
-        Array.isArray(point) && point.length === 2 ? point[1] : -100,
+        validGhostPoint(point) ? point[0] : -100,
+        validGhostPoint(point) ? point[1] : -100,
+        validGhostPoint(point) ? point[2] : 0,
       );
     }
     if (next === 4) finishRun();
@@ -507,7 +541,7 @@ $("muteButton").addEventListener("click", () => {
 $("ghostToggle").addEventListener("change", () => {
   settings.ghost = $("ghostToggle").checked;
   saveSettings();
-  if (!settings.ghost && ready) Module._tiny_ghost(-100, -100);
+  if (!settings.ghost && ready) Module._tiny_ghost(-100, -100, 0);
 });
 $("playButton").addEventListener("click", startRun);
 $("retryButton").addEventListener("click", startRun);
@@ -660,7 +694,7 @@ var Module = {
   onRuntimeInitialized() {
     if (
       typeof Module._tiny_metric !== "function" ||
-      Module._tiny_metric(17) !== 2
+      Module._tiny_metric(17) !== BRIDGE_VERSION
     ) {
       fatal("The game files are out of date. Reload to get matching rules.");
       return;
@@ -687,7 +721,11 @@ if (challenge) loadGroup(challenge);
 const pending = storage.read("pending", []);
 if (Array.isArray(pending))
   for (const item of pending)
-    if (item?.session?.expiresAt > Date.now()) submitResult(item);
+    if (
+      item?.session?.expiresAt > Date.now() &&
+      item?.result?.version === VERSION
+    )
+      submitResult(item);
 setInterval(() => {
   if (!document.hidden && ![1, 2].includes(gameState())) refreshBoard();
 }, 20000);
